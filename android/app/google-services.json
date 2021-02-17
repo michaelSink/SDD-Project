@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "435150563661",
+    "project_id": "sdd-project-10b85",
+    "storage_bucket": "sdd-project-10b85.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:435150563661:android:0710ef2a67defe9b1c6f04",
+        "android_client_info": {
+          "package_name": "edu.uco.msinkankas.cmsc4513.SDD_Project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "435150563661-97k3sr1sn770ri5ahcm6i9luhnu5f1p2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7zjbN8QHppcyEk1H_dT13GjRQ39ey1dc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "435150563661-97k3sr1sn770ri5ahcm6i9luhnu5f1p2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
