@@ -1,5 +1,12 @@
+import 'package:SDD_Project/model/perscription.dart';
+import 'package:SDD_Project/screens/views/myimageview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import '../controller/firebasecontroller.dart';
+import 'perscription_screen.dart';
+import 'signin_screen.dart';
+import 'views/mydialog.dart';
 
 class HomeScreen extends StatefulWidget{
 
@@ -15,18 +22,105 @@ class HomeScreen extends StatefulWidget{
 class _HomeState extends State<HomeScreen>{
 
   FirebaseUser user;
+  _Controller con;
+
+  @override
+  void initState() {
+    super.initState();
+    con = _Controller(this);
+  }
 
   @override
   Widget build(BuildContext context) {
     Map arg = ModalRoute.of(context).settings.arguments;
     user ??= arg['user'];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
+    return  WillPopScope(
+      onWillPop: () => Future.value(false),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Home'),
+        ),
+        drawer: Drawer(
+          child: ListView(
+            children: [
+              UserAccountsDrawerHeader(
+                currentAccountPicture: ClipOval(
+                  child: 
+                  user.photoUrl != null ? MyImageView.network(
+                    imageUrl: user.photoUrl, 
+                    context: context
+                  )
+                  :
+                  Image.asset('static/images/default-user.png')
+                ),
+                accountEmail: Text(user.email),
+                accountName: Text(user.displayName ?? 'N/A'),
+              ),
+              ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text('Sign Out'),
+                onTap: con.signOut,
+              ),
+            ],
+          ),
+        ),
+        body: Column(
+
+          children: [
+
+            Card(
+                child: ListTile(
+                  leading: FlutterLogo(),
+                  title: Text('Perscriptions'),
+                  onTap: con.perscriptionScreen,
+                ),
+            ),
+
+          ],
+
+        ),
       ),
-      body: Text('Home Screen'),
     );
+  }
+
+}
+
+class _Controller{
+
+  _HomeState _state;
+  _Controller(this._state);
+
+  void perscriptionScreen() async {
+
+    try{
+
+      //Get perscriptions
+      List<dynamic> perscriptions = await FirebaseController.getPerscriptions(_state.user.uid);
+
+      await Navigator.pushNamed(_state.context, PerscriptionScreen.routeName,
+          arguments: {'user': _state.user, 'perscriptions' : perscriptions});
+
+    }catch(e){
+
+      MyDialog.info(
+        context: _state.context,
+        content: e.message ?? e.toString(),
+        title: 'Error',
+      );
+
+    }
+
+  }
+
+  void signOut() async {
+    try {
+      await FirebaseController.signOut();
+    } catch (e) {
+      print('signOut exception: ${e.message}');
+    }
+
+    Navigator.pushReplacementNamed(_state.context, SignInScreen.routeName);
   }
 
 }
