@@ -1,4 +1,5 @@
 import 'package:SDD_Project/model/perscription.dart';
+import 'package:SDD_Project/screens/hotline_screen.dart';
 import 'package:SDD_Project/screens/views/myimageview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +78,14 @@ class _HomeState extends State<HomeScreen>{
                 ),
             ),
 
+            Card(
+                child: ListTile(
+                  leading: FlutterLogo(),
+                  title: Text('Hotlines'),
+                  onTap: con.hotlineScreen,
+                ),
+            ),
+
           ],
 
         ),
@@ -110,6 +119,12 @@ class _Controller{
       );
 
     }
+
+  }
+
+  void hotlineScreen() async{
+
+    Navigator.pushNamed(_state.context, HotlineScreen.routeName);
 
   }
 

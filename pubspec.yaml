@@ -27,6 +27,7 @@ dependencies:
   firebase_auth: ^0.16.1
   cloud_firestore: ^0.13.6
   firebase_storage: ^3.1.6
+  url_launcher: ^5.7.0
   cached_network_image: ^2.2.0+1
 
 
