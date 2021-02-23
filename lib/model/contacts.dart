@@ -1,4 +1,7 @@
 class Contacts{
+
+  static const COLLECTION = 'contacts';
+
   static const FIRSTNAME = "firstName";
   static const LASTNAME = "lastName";
   static const PHONENUM = "phoneNum";
