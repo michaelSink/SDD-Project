@@ -1,5 +1,7 @@
+import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/home_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
+import 'package:SDD_Project/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 
 void main(){
@@ -20,6 +22,8 @@ class AppRoutes extends StatelessWidget{
       routes: {
         SignInScreen.routeName: (context) => SignInScreen(),
         HomeScreen.routeName: (context) => HomeScreen(),
+        SignUpScreen.routeName: (context) => SignUpScreen(),
+        ContactScreen.routeName: (context) => ContactScreen(),
       }
 
     );
