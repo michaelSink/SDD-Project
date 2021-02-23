@@ -1,59 +1,53 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
+import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/home_screen.dart';
+import 'package:SDD_Project/screens/signup_screen.dart';
 import 'package:SDD_Project/screens/views/mydialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class SignInScreen extends StatefulWidget{
-
+class SignInScreen extends StatefulWidget {
   static const routeName = './signInScreen';
 
   @override
   State<StatefulWidget> createState() {
-    
     return _SignInState();
-
   }
-
 }
 
-class _SignInState extends State<SignInScreen>{
-
+class _SignInState extends State<SignInScreen> {
   _Controller con;
   var formKey = GlobalKey<FormState>();
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     con = _Controller(this);
   }
 
+  void render(fn) => setState(fn);
+
   @override
   Widget build(BuildContext context) {
-   
     return Scaffold(
-
       appBar: AppBar(
-
         title: Text("Sign In"),
-
       ),
       body: SingleChildScrollView(
-
         child: Form(
-
           key: formKey,
           child: Column(
-
             children: [
               Container(
                 padding: EdgeInsets.all(16.0),
                 child: Text(
                   'Personal Care',
                   style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                  ),
+                ),
               ),
-              SizedBox(height: 15,),
+              SizedBox(
+                height: 15,
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'Email',
@@ -63,7 +57,9 @@ class _SignInState extends State<SignInScreen>{
                 validator: con.validatorEmail,
                 onSaved: con.onSavedEmail,
               ),
-              SizedBox(height: 7.5,),
+              SizedBox(
+                height: 7.5,
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'Password',
@@ -73,7 +69,9 @@ class _SignInState extends State<SignInScreen>{
                 validator: con.validatorPassword,
                 onSaved: con.onSavedPassword,
               ),
-              SizedBox(height: 15,),
+              SizedBox(
+                height: 15,
+              ),
               RaisedButton(
                 child: Text(
                   'Sign In',
@@ -82,31 +80,29 @@ class _SignInState extends State<SignInScreen>{
                 color: Colors.blue,
                 onPressed: con.signIn,
               ),
-
+              FlatButton(
+                onPressed: con.signUp,
+                child: Text(
+                  'No account yet? Sign Up',
+                  style: TextStyle(fontSize: 15.0),
+                ),
+              ),
             ],
-
           ),
-
         ),
-
       ),
-
     );
-
   }
-
 }
 
 class _Controller {
-
   _SignInState _state;
   _Controller(this._state);
   String email;
   String password;
 
-  void signIn() async{
-
-    if(!_state.formKey.currentState.validate()){
+  void signIn() async {
+    if (!_state.formKey.currentState.validate()) {
       return;
     }
 
@@ -114,13 +110,10 @@ class _Controller {
 
     MyDialog.circularProgressStart(_state.context);
     FirebaseUser user;
-    try{
-
+    try {
       user = await FirebaseController.signIn(email, password);
       print('User: $user');
-
-    }catch(e){
-
+    } catch (e) {
       MyDialog.circularProgressEnd(_state.context);
       MyDialog.info(
         context: _state.context,
@@ -128,14 +121,12 @@ class _Controller {
         title: 'Sign In Error',
       );
       return;
-
     }
 
     MyDialog.circularProgressEnd(_state.context);
-    
+
     Navigator.pushReplacementNamed(_state.context, HomeScreen.routeName,
         arguments: {'user': user});
-
   }
 
   String validatorEmail(String value) {
@@ -162,4 +153,7 @@ class _Controller {
     password = value.trim();
   }
 
+  void signUp() async {
+    Navigator.pushNamed(_state.context, SignUpScreen.routeName);
+  }
 }
