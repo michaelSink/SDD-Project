@@ -26,6 +26,7 @@ class FirebaseController{
       for(var doc in querySnapshot.documents){
         results.add(Perscription.deserialize(doc.data, doc.documentID));
       }
+    }
       return results;
     }
 

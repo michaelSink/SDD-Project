@@ -5,7 +5,6 @@ import 'package:SDD_Project/screens/perscriptionDetails_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:SDD_Project/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
-
 import 'screens/perscription_screen.dart';
 import 'screens/addperscription_screen.dart';
 
