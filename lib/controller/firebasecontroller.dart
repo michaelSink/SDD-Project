@@ -1,6 +1,7 @@
-import 'package:SDD_Project/model/contacts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:SDD_Project/model/contacts.dart';
+import 'package:SDD_Project/model/perscription.dart';
 
 class FirebaseController{
 
@@ -12,6 +13,32 @@ class FirebaseController{
     return auth.user;
   }
 
+    static Future<List<Perscription>> getPerscriptions(String uid) async{
+
+    QuerySnapshot querySnapshot = await Firestore.instance
+        .collection(Perscription.COLLECTION)
+        .where(Perscription.CREATED_BY, isEqualTo: uid)
+        .orderBy(Perscription.FILLED_DATE)
+        .getDocuments();
+
+    var results = <Perscription>[];
+    if(querySnapshot != null && querySnapshot.documents.length != 0){
+      for(var doc in querySnapshot.documents){
+        results.add(Perscription.deserialize(doc.data, doc.documentID));
+      }
+      return results;
+    }
+
+  
+  static Future<String> addPerscription(Perscription perscription) async{
+
+    DocumentReference ref = await Firestore.instance
+        .collection(Perscription.COLLECTION)
+        .add(perscription.serialize());
+    return ref.documentID;
+
+  }
+  
    static Future signOut() async {
     await FirebaseAuth.instance.signOut();
   }
@@ -27,7 +54,6 @@ class FirebaseController{
       DocumentReference ref = await Firestore()
       .collection(Contacts.COLLECTION).add(contact.serialize());
       return ref.documentID;
-      
   }
 
 }
