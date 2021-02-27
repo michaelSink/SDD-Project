@@ -1,6 +1,7 @@
-import 'package:SDD_Project/model/perscription.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:SDD_Project/model/contacts.dart';
+import 'package:SDD_Project/model/perscription.dart';
 
 class FirebaseController{
 
@@ -12,20 +13,7 @@ class FirebaseController{
     return auth.user;
   }
 
-  static Future<void> signOut() async {
-    await FirebaseAuth.instance.signOut();
-  }
-
-  static Future<String> addPerscription(Perscription perscription) async{
-
-    DocumentReference ref = await Firestore.instance
-        .collection(Perscription.COLLECTION)
-        .add(perscription.serialize());
-    return ref.documentID;
-
-  }
-
-  static Future<List<Perscription>> getPerscriptions(String uid) async{
+    static Future<List<Perscription>> getPerscriptions(String uid) async{
 
     QuerySnapshot querySnapshot = await Firestore.instance
         .collection(Perscription.COLLECTION)
@@ -38,10 +26,34 @@ class FirebaseController{
       for(var doc in querySnapshot.documents){
         results.add(Perscription.deserialize(doc.data, doc.documentID));
       }
+      return results;
     }
 
-    return results;
+  
+  static Future<String> addPerscription(Perscription perscription) async{
 
+    DocumentReference ref = await Firestore.instance
+        .collection(Perscription.COLLECTION)
+        .add(perscription.serialize());
+    return ref.documentID;
+
+  }
+  
+   static Future signOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  static Future signUp(String email, String password) async {
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+  }
+
+  static Future<String> addContact(Contacts contact) async {
+      DocumentReference ref = await Firestore()
+      .collection(Contacts.COLLECTION).add(contact.serialize());
+      return ref.documentID;
   }
 
 }

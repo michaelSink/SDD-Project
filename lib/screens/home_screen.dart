@@ -1,32 +1,38 @@
+import 'package:SDD_Project/controller/firebasecontroller.dart';
+import 'package:SDD_Project/screens/contacts_screen.dart';
+import 'package:SDD_Project/screens/signin_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:SDD_Project/model/perscription.dart';
 import 'package:SDD_Project/screens/hotline_screen.dart';
 import 'package:SDD_Project/screens/views/myimageview.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-
 import '../controller/firebasecontroller.dart';
 import 'perscription_screen.dart';
 import 'signin_screen.dart';
 import 'views/mydialog.dart';
 
-class HomeScreen extends StatefulWidget{
-
-  static const routeName = './singIn/homeScreen/';
+class HomeScreen extends StatefulWidget {
+  static const routeName = './signIn/homeScreen/';
 
   @override
   State<StatefulWidget> createState() {
     return _HomeState();
-  } 
-
+  }
 }
 
-class _HomeState extends State<HomeScreen>{
-
-  FirebaseUser user;
+class _HomeState extends State<HomeScreen> {
   _Controller con;
+  FirebaseUser user;
 
   @override
   void initState() {
+    super.initState();
+    con = _Controller(this);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
     super.initState();
     con = _Controller(this);
   }
@@ -67,9 +73,14 @@ class _HomeState extends State<HomeScreen>{
           ),
         ),
         body: Column(
-
           children: [
-
+            FlatButton(
+            onPressed: con.accessContacts, //access contacts,
+            color: Colors.blue[600],
+            child: Icon(
+              Icons.accessibility_new,
+              ),
+            ),
             Card(
                 child: ListTile(
                   leading: FlutterLogo(),
@@ -85,47 +96,39 @@ class _HomeState extends State<HomeScreen>{
                   onTap: con.hotlineScreen,
                 ),
             ),
-
           ],
-
         ),
       ),
     );
   }
-
 }
 
 class _Controller{
-
   _HomeState _state;
   _Controller(this._state);
 
   void perscriptionScreen() async {
-
     try{
-
       //Get perscriptions
       List<dynamic> perscriptions = await FirebaseController.getPerscriptions(_state.user.uid);
 
       await Navigator.pushNamed(_state.context, PerscriptionScreen.routeName,
           arguments: {'user': _state.user, 'perscriptions' : perscriptions});
-
     }catch(e){
-
       MyDialog.info(
         context: _state.context,
         content: e.message ?? e.toString(),
         title: 'Error',
       );
-
     }
-
   }
 
   void hotlineScreen() async{
-
     Navigator.pushNamed(_state.context, HotlineScreen.routeName);
+  }
 
+   void accessContacts() async {
+    Navigator.pushNamed(_state.context, ContactScreen.routeName);
   }
 
   void signOut() async {
@@ -134,8 +137,6 @@ class _Controller{
     } catch (e) {
       print('signOut exception: ${e.message}');
     }
-
     Navigator.pushReplacementNamed(_state.context, SignInScreen.routeName);
   }
-
 }

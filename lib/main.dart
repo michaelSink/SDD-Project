@@ -1,7 +1,9 @@
+import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/home_screen.dart';
 import 'package:SDD_Project/screens/hotline_screen.dart';
 import 'package:SDD_Project/screens/perscriptionDetails_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
+import 'package:SDD_Project/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'screens/perscription_screen.dart';
@@ -25,6 +27,8 @@ class AppRoutes extends StatelessWidget{
       routes: {
         SignInScreen.routeName: (context) => SignInScreen(),
         HomeScreen.routeName: (context) => HomeScreen(),
+        SignUpScreen.routeName: (context) => SignUpScreen(),
+        ContactScreen.routeName: (context) => ContactScreen(),
         PerscriptionScreen.routeName: (context) => PerscriptionScreen(),
         AddPerscriptionScreen.routeName: (context) => AddPerscriptionScreen(),
         HotlineScreen.routeName: (context) => HotlineScreen(),
