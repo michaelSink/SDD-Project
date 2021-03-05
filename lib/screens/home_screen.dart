@@ -1,4 +1,5 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
+import 'package:SDD_Project/model/contacts.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -35,7 +36,7 @@ class _HomeState extends State<HomeScreen> {
     Map arg = ModalRoute.of(context).settings.arguments;
     user ??= arg['user'];
 
-    return  WillPopScope(
+    return WillPopScope(
       onWillPop: () => Future.value(false),
       child: Scaffold(
         appBar: AppBar(
@@ -46,14 +47,10 @@ class _HomeState extends State<HomeScreen> {
             children: [
               UserAccountsDrawerHeader(
                 currentAccountPicture: ClipOval(
-                  child: 
-                  user.photoUrl != null ? MyImageView.network(
-                    imageUrl: user.photoUrl, 
-                    context: context
-                  )
-                  :
-                  Image.asset('static/images/default-user.png')
-                ),
+                    child: user.photoUrl != null
+                        ? MyImageView.network(
+                            imageUrl: user.photoUrl, context: context)
+                        : Image.asset('static/images/default-user.png')),
                 accountEmail: Text(user.email),
                 accountName: Text(user.displayName ?? 'N/A'),
               ),
@@ -67,27 +64,26 @@ class _HomeState extends State<HomeScreen> {
         ),
         body: Column(
           children: [
-            FlatButton(
-            onPressed: con.accessContacts, //access contacts,
-            color: Colors.blue[600],
-            child: Icon(
-              Icons.accessibility_new,
+            Card(
+              child: ListTile(
+                leading: FlutterLogo(),
+                title: Text('Contacts'),
+                onTap: con.accessContacts,
               ),
             ),
             Card(
-                child: ListTile(
-                  leading: FlutterLogo(),
-                  title: Text('Perscriptions'),
-                  onTap: con.perscriptionScreen,
-                ),
+              child: ListTile(
+                leading: FlutterLogo(),
+                title: Text('Perscriptions'),
+                onTap: con.perscriptionScreen,
+              ),
             ),
-
             Card(
-                child: ListTile(
-                  leading: FlutterLogo(),
-                  title: Text('Hotlines'),
-                  onTap: con.hotlineScreen,
-                ),
+              child: ListTile(
+                leading: FlutterLogo(),
+                title: Text('Hotlines'),
+                onTap: con.hotlineScreen,
+              ),
             ),
           ],
         ),
@@ -96,18 +92,19 @@ class _HomeState extends State<HomeScreen> {
   }
 }
 
-class _Controller{
+class _Controller {
   _HomeState _state;
   _Controller(this._state);
 
   void perscriptionScreen() async {
-    try{
+    try {
       //Get perscriptions
-      List<dynamic> perscriptions = await FirebaseController.getPerscriptions(_state.user.uid);
+      List<dynamic> perscriptions =
+          await FirebaseController.getPerscriptions(_state.user.uid);
 
       await Navigator.pushNamed(_state.context, PerscriptionScreen.routeName,
-          arguments: {'user': _state.user, 'perscriptions' : perscriptions});
-    }catch(e){
+          arguments: {'user': _state.user, 'perscriptions': perscriptions});
+    } catch (e) {
       MyDialog.info(
         context: _state.context,
         content: e.message ?? e.toString(),
@@ -116,12 +113,24 @@ class _Controller{
     }
   }
 
-  void hotlineScreen() async{
+  void hotlineScreen() async {
     Navigator.pushNamed(_state.context, HotlineScreen.routeName);
   }
 
-   void accessContacts() async {
-    Navigator.pushNamed(_state.context, ContactScreen.routeName);
+  void accessContacts() async {
+    try {
+      List<Contacts> contacts =
+          await FirebaseController.getContacts(_state.user.email);
+      print(contacts.length);
+      await Navigator.pushNamed(_state.context, ContactScreen.routeName,
+          arguments: {'user': _state.user.email, 'contacts': contacts});
+    } catch (e) {
+      MyDialog.info(
+        context: _state.context,
+        content: e.toString(),
+        title: 'Error loading Contact Screen',
+      );
+    }
   }
 
   void signOut() async {
