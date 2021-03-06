@@ -1,4 +1,5 @@
 import 'package:SDD_Project/screens/contacts_screen.dart';
+import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
 import 'package:SDD_Project/screens/home_screen.dart';
 import 'package:SDD_Project/screens/hotline_screen.dart';
 import 'package:SDD_Project/screens/perscriptionDetails_screen.dart';
@@ -32,6 +33,7 @@ class AppRoutes extends StatelessWidget{
         AddPerscriptionScreen.routeName: (context) => AddPerscriptionScreen(),
         HotlineScreen.routeName: (context) => HotlineScreen(),
         PerscriptionDetails.routeName: (context) => PerscriptionDetails(),
+        FeelGoodVault.routeName: (context) => FeelGoodVault()
       }
 
     );

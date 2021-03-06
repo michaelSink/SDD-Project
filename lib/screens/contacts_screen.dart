@@ -19,9 +19,14 @@ class _ContactScreen extends State<ContactScreen> {
   _Controller con;
   var formKey = GlobalKey<FormState>();
   String user;
+  List<int> selectedIndex = [];
+  Map<int, String> contactsToDelete;
 
   render(fn) => setState(fn);
 
+  //-----popup forms for the body-----//
+
+  //form for new contact information
   popupForm() {
     showDialog(
       barrierDismissible: true,
@@ -91,6 +96,23 @@ class _ContactScreen extends State<ContactScreen> {
                         validator: con.validatePhoneNum,
                       ),
                     ),
+                    Container(
+                      //phone # container
+                      alignment: Alignment.bottomCenter,
+                      padding: EdgeInsets.fromLTRB(0, 0, 0, 5),
+                      width: MediaQuery.of(context).size.width / 2,
+                      child: TextFormField(
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                            hintText: "relation",
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(gapPadding: 20.0)),
+                        autocorrect: false,
+                        onSaved: con.saveRelation,
+                        validator: con.validateRelation,
+                      ),
+                    ),
                     ElevatedButton(
                       child: Text("Submit"),
                       onPressed: () {
@@ -107,17 +129,20 @@ class _ContactScreen extends State<ContactScreen> {
     );
   }
 
-  popupDialog(String action, String number) {
+  //popup for calling or texting a contact
+  popupDialog(String action, Contacts contact) {
     showDialog(
         barrierDismissible: true,
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            content: Text("Do you want to ${action} this person?"),
+            content: Text("Do you want to $action ${contact.firstName}?"),
             actions: <Widget>[
               ElevatedButton(
                   onPressed: () async {
-                    await launch("tel:${number}");
+                    String reach;
+                    action == "call" ? reach = "tel" : reach = "sms";
+                    await launch("$reach:${contact.phoneNum}");
                     Navigator.of(context).pop();
                   },
                   child: Text("Yes")),
@@ -131,25 +156,28 @@ class _ContactScreen extends State<ContactScreen> {
         });
   }
 
+  //---------------------------------//
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     con = _Controller(this);
   }
 
+  //body of the screen
   @override
   Widget build(BuildContext context) {
     Map args = ModalRoute.of(context).settings.arguments;
     user ??= args['user'];
     contacts ??= args['contacts'];
 
-    print(contacts.length);
-
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         title: Text("People I Know"),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.delete), onPressed: con.delete)
+        ],
       ),
       body: contacts.length == 0
           ? Text("No Contacts, please add some")
@@ -163,25 +191,62 @@ class _ContactScreen extends State<ContactScreen> {
                         " " +
                         contacts[index].lastName),
                     trailing: Container(
-                        width: 100,
+                        width: MediaQuery.of(context).size.width / 4,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             IconButton(
                               icon: Icon(Icons.phone),
                               onPressed: () {
-                                popupDialog("call", contacts[index].phoneNum);
+                                //open up a dialog box to confirm call
+                                popupDialog("call", contacts[index]);
                               },
                             ),
                             IconButton(
                               icon: Icon(Icons.phone_android),
                               onPressed: () async {
-                                popupDialog("text", contacts[index].phoneNum);
+                                //open up a dialog box to confirm text
+                                popupDialog("text", contacts[index]);
                               },
                             ),
                           ],
                         )),
-                    onTap: () {},
+                    selected: selectedIndex.contains(index) ? true : false,
+                    selectedTileColor: Colors.blue[100],
+                    onTap: () {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            String number = contacts[index].phoneNum;
+                            String first = number.substring(0, 3);
+                            String second = number.substring(3, 6);
+                            String third =
+                                number.substring(6); //number formatting
+                            return AlertDialog(
+                              content: ListTile(
+                                title: Text(contacts[index].firstName +
+                                    " " +
+                                    contacts[index].lastName),
+                                //format number to (xxx) xxx-xxxx
+                                subtitle: Text("(" +
+                                    first +
+                                    ")" +
+                                    second +
+                                    "-" +
+                                    third +
+                                    "\n" +
+                                    contacts[index].relation),
+                              ),
+                            );
+                          });
+                    },
+                    onLongPress: () {
+                      //uodated list of contacts selected for deletion
+                      selectedIndex.contains(index)
+                          ? selectedIndex.remove(index)
+                          : selectedIndex.add(index);
+                      render((){});
+                    },
                   ),
                 ),
               ),
@@ -197,10 +262,11 @@ class _ContactScreen extends State<ContactScreen> {
   }
 }
 
+//start of controller for firebase and button functions
 class _Controller {
   _ContactScreen _state;
   _Controller(this._state);
-  String firstName, lastName, phoneNum;
+  String firstName, lastName, phoneNum, relation;
 
   //validators
   String validateFirstName(String s) {
@@ -220,26 +286,54 @@ class _Controller {
   }
 
   String validatePhoneNum(String s) {
-    if (s == null || s.length != 10) {
-      return "Please enter a phone number 000 000 0000";
+    if (s == null || s.length < 10) {
+      return "Please enter 10 digit phone #";
+    } else {
+      return null;
+    }
+  }
+
+  String validateRelation(String s) {
+    if (s == null || s.trim() == "") {
+      return "Please enter your relation to this person";
     } else {
       return null;
     }
   }
 
   //save functions
+    //change input name to capitalize first letter
   void saveFirstName(String s) {
-    firstName = s;
+    String first = s.substring(0, 1);
+    String last = s.substring(1);
+    first = first.toUpperCase();
+    last = last.toLowerCase();
+    firstName = first + last;
+  }
+    //change input name to capitalize first letter
+  void saveLastName(String s) {
+    String first = s.substring(0, 1);
+    String last = s.substring(1);
+    first = first.toUpperCase();
+    last = last.toLowerCase();
+    lastName = first + last;
   }
 
-  void saveLastName(String s) {
-    lastName = s;
+  void saveRelation(String s) {
+    relation = s;
   }
 
   void savePhoneNum(String s) {
+    s = s.replaceAll("-", "");
+    s = s.replaceAll("(", "");
+    s = s.replaceAll(")", "");
+    s = s.replaceAll(" ", "");
+    //to keep all the phone #s consistent,
+    //change (xxx)-xxx-xxxx; xxx-xxx-xxxx; xxx xxx xxxx to the format xxxxxxxxxx
     phoneNum = s;
   }
 
+  //to add a new contact
   void submit() async {
     if (!_state.formKey.currentState.validate()) {
       return;
@@ -253,15 +347,14 @@ class _Controller {
         lastName: lastName,
         phoneNum: phoneNum,
         owner: _state.user,
-        relation: "contact",
+        relation: relation,
       );
 
       c.docID = await FirebaseController.addContact(c);
       //print("here"); debug
-      _state.contacts.insert(0, c);
       MyDialog.circularProgressEnd(_state.context); //pop circular from add
       Navigator.pop(_state.context); //pop dialog box from form
-      _state.render(() {});
+      _state.render(() {_state.contacts.add(c);});
       MyDialog.info(
           title: "Contact Added",
           context: _state.context,
@@ -273,6 +366,35 @@ class _Controller {
           title: "Contact Add Error",
           context: _state.context,
           content: e.message.toString());
+      return;
+    }
+  }
+
+  //deleting contacts from the index
+  void delete() async {
+    if (_state.selectedIndex.length == 0) {
+      return;
+    }
+    MyDialog.circularProgressStart(_state.context);
+    try {
+
+      for (int i = 0; i < _state.selectedIndex.length; i++) {
+        await FirebaseController.deleteContacts(_state.contacts.elementAt(_state.selectedIndex[i]));
+        _state.contacts.removeAt(_state.selectedIndex[i]);
+      }
+       
+      MyDialog.circularProgressEnd(_state.context);
+      _state.render((){_state.selectedIndex = [];});
+      MyDialog.info(
+          title: "Contact Deleted",
+          context: _state.context,
+          content: "Contact successfully deleted");
+    } catch (e) {
+      MyDialog.info(
+          title: "Contact Delete Error",
+          context: _state.context,
+          content: e.toString());
+      MyDialog.circularProgressEnd(_state.context);
       return;
     }
   }

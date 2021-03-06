@@ -1,6 +1,7 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/contacts.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
+import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -85,6 +86,13 @@ class _HomeState extends State<HomeScreen> {
                 onTap: con.hotlineScreen,
               ),
             ),
+            Card(
+              child: ListTile(
+                leading: FlutterLogo(),
+                title: Text('Feel Good Vault'),
+                onTap: con.accessVault,
+              ),
+            ),
           ],
         ),
       ),
@@ -121,7 +129,6 @@ class _Controller {
     try {
       List<Contacts> contacts =
           await FirebaseController.getContacts(_state.user.email);
-      print(contacts.length);
       await Navigator.pushNamed(_state.context, ContactScreen.routeName,
           arguments: {'user': _state.user.email, 'contacts': contacts});
     } catch (e) {
@@ -129,6 +136,19 @@ class _Controller {
         context: _state.context,
         content: e.toString(),
         title: 'Error loading Contact Screen',
+      );
+    }
+  }
+
+  void accessVault() async {
+    try {
+      await Navigator.pushNamed(_state.context, FeelGoodVault.routeName,
+          arguments: {'user': _state.user.email});
+    } catch (e) {
+      MyDialog.info(
+        context: _state.context,
+        content: e.toString(),
+        title: 'Error loading Vault',
       );
     }
   }

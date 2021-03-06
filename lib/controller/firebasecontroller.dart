@@ -67,4 +67,11 @@ class FirebaseController {
     }
     return contacts;
   }
+
+  static Future deleteContacts(Contacts contact) async {
+    await Firestore()
+        .collection(Contacts.COLLECTION)
+        .document(contact.docID)
+        .delete();
+  }
 }
