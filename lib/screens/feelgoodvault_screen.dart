@@ -28,7 +28,55 @@ class _FeelGoodVault extends State<FeelGoodVault> {
       appBar: AppBar(
         title: Text("Feel Good Vault"),
       ),
-      body: Text("Vault info"),
+      body: Column(
+        children: <Widget>[
+          Card(
+            elevation: 5,
+            margin: EdgeInsets.all(15),
+            child: ListTile(
+              leading: Icon(Icons.camera_alt),
+              title: Text("Pictures"),
+               onTap: (){},
+            ),
+          ),
+          Card(
+            elevation: 5,
+            margin: EdgeInsets.all(15),
+            child: ListTile(
+              leading: Icon(Icons.format_quote_outlined),
+              title: Text("Quotes"),
+               onTap: (){},
+            ),
+          ),
+          Card(
+            elevation: 5,
+            margin: EdgeInsets.all(15),
+            child: ListTile(
+              leading: Icon(Icons.music_note_outlined),
+              title: Text("Songs"),
+               onTap: (){},
+            ),
+          ),
+          Card(
+            elevation: 5,
+            margin: EdgeInsets.all(15),
+            child: ListTile(
+              leading: Icon(Icons.video_collection_outlined),
+              title: Text("Video"),
+              onTap: (){},
+            ),
+          ),
+          Card(
+            elevation: 5,
+            margin: EdgeInsets.all(15),
+            child: ListTile(
+              leading: Icon(Icons.book_outlined),
+              title: Text("Stories"),
+              onTap: (){},
+            ),
+          ),
+        ],
+      )
     );
   }
 }
