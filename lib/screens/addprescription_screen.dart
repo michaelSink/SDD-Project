@@ -1,25 +1,25 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
-import 'package:SDD_Project/model/perscription.dart';
+import 'package:SDD_Project/model/prescription.dart';
 import 'package:SDD_Project/screens/views/mydialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class AddPerscriptionScreen extends StatefulWidget{
+class AddPrescriptionScreen extends StatefulWidget{
 
-  static const routeName = 'signIn/homeScreen/perscriptionScreen/addPerscription/';
+  static const routeName = 'signIn/homeScreen/perscriptionScreen/addPrescription/';
 
   @override
   State<StatefulWidget> createState() {
-    return _AddPerscriptionState();
+    return _AddPrescriptionState();
   }
 
 }
 
-class _AddPerscriptionState extends State<AddPerscriptionScreen>{
+class _AddPrescriptionState extends State<AddPrescriptionScreen>{
 
   _Controller con;
   FirebaseUser user;
-  List<Perscription> perscriptions;
+  List<Prescription> prescriptions;
   var formKey = GlobalKey<FormState>();
 
   @override
@@ -33,11 +33,11 @@ class _AddPerscriptionState extends State<AddPerscriptionScreen>{
 
     Map arg = ModalRoute.of(context).settings.arguments;
     user ??= arg['user'];
-    perscriptions ??= arg['perscriptions'];
+    prescriptions ??= arg['prescriptions'];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Perscription'),
+        title: Text('Add Prescription'),
         actions: [
           IconButton(
             icon: Icon(Icons.check),
@@ -89,11 +89,11 @@ class _AddPerscriptionState extends State<AddPerscriptionScreen>{
               SizedBox(height: 10.0,),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'Perscription Number',
+                  hintText: 'Prescription Number',
                 ),
                 autocorrect: false,
-                validator: con.validatorPerscriptionNumber,
-                onSaved: con.onSavedPerscriptionNumber,
+                validator: con.validatorPrescriptionNumber,
+                onSaved: con.onSavedPrescriptionNumber,
               ),
               SizedBox(height: 30.0),
               Text(
@@ -143,7 +143,7 @@ class _AddPerscriptionState extends State<AddPerscriptionScreen>{
               ),
               SizedBox(height: 30.0,),
               Text(
-                'Perscription Information', 
+                'Prescription Information', 
                 style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold),
               ),
               Divider(
@@ -181,11 +181,11 @@ class _AddPerscriptionState extends State<AddPerscriptionScreen>{
               SizedBox(height: 10.0,),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'Perscriber',
+                  hintText: 'Prescriber',
                 ),
                 autocorrect: false,
-                validator: con.validatorPerscriber,
-                onSaved: con.onSavedPerscriber,
+                validator: con.validatorPrescriber,
+                onSaved: con.onSavedPrescriber,
               ),
               SizedBox(height: 10.0,),
               TextFormField(
@@ -210,12 +210,12 @@ class _AddPerscriptionState extends State<AddPerscriptionScreen>{
               SizedBox(height: 10.0,),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'Perscribed On e.g. YYYY-MM-DD',
+                  hintText: 'Prescribed On e.g. YYYY-MM-DD',
                   suffix: Text('YYYY-MM-DD'),
                 ),
                 autocorrect: false,
                 validator: con.validatorDateBeforeToday,
-                onSaved: con.onSavedPerscribedOn,
+                onSaved: con.onSavedPrescribedOn,
               ),
             ],
           ),
@@ -229,13 +229,13 @@ class _AddPerscriptionState extends State<AddPerscriptionScreen>{
 
 class _Controller{
 
-  _AddPerscriptionState _state;
+  _AddPrescriptionState _state;
   _Controller(this._state);
 
   String pharmacyName;
   String pharmacyAddress;
   String pharmacyNumber;
-  String perscriptionNumber;
+  String prescriptionNumber;
 
   String drugName;
   String drugStrength;
@@ -245,10 +245,10 @@ class _Controller{
   int pillCount;
   DateTime reorderDate;
   int refillAmount;
-  String perscriber;
+  String prescriber;
   DateTime filledDate;
   DateTime expiration;
-  DateTime perscribedOn;
+  DateTime prescribedOn;
 
   void save() async {
 
@@ -262,12 +262,12 @@ class _Controller{
         
         MyDialog.circularProgressStart(_state.context);
 
-        Perscription p = Perscription(
+        Prescription p = Prescription(
           createdBy: _state.user.uid,
           pharmacyName: pharmacyName,
           pharmacyAddress: pharmacyAddress,
           pharmacyNumber: pharmacyNumber,
-          perscriptionNumber: perscriptionNumber,
+          prescriptionNumber: prescriptionNumber,
           drugName: drugName,
           drugStrength: drugStrength,
           drugInstructions: drugInstructions,
@@ -275,14 +275,14 @@ class _Controller{
           pillCount: pillCount,
           reorderDate: reorderDate,
           refillAmount: refillAmount,
-          perscriber: perscriber,
+          prescriber: prescriber,
           filledDate: filledDate,
           expiration: expiration,
-          perscribedOn: perscribedOn,
+          prescribedOn: prescribedOn,
         );
 
-        p.docId = await FirebaseController.addPerscription(p);
-        _state.perscriptions.insert(0, p);
+        p.docId = await FirebaseController.addPrescription(p);
+        _state.prescriptions.insert(0, p);
 
         MyDialog.circularProgressEnd(_state.context);
         Navigator.pop(_state.context);
@@ -314,8 +314,8 @@ class _Controller{
     pharmacyNumber = value.trim();
   }
 
-  void onSavedPerscriptionNumber(String value){
-    perscriptionNumber = value.trim();
+  void onSavedPrescriptionNumber(String value){
+    prescriptionNumber = value.trim();
   }
   
   //Drug saving
@@ -335,7 +335,7 @@ class _Controller{
     drugDescription = value.trim();
   }
 
-  //Perscription saving
+  //Prescription saving
   void onSavedPillCount(String value){
     pillCount = int.parse(value);
   }
@@ -348,8 +348,8 @@ class _Controller{
     refillAmount = int.parse(value);
   }
 
-  void onSavedPerscriber(String value){
-    perscriber = value.trim();
+  void onSavedPrescriber(String value){
+    prescriber = value.trim();
   }
 
   void onSavedFilledDate(String value){
@@ -360,8 +360,8 @@ class _Controller{
     expiration = DateTime.parse(value.trim());
   }
 
-  void onSavedPerscribedOn(String value){
-    perscribedOn = DateTime.parse(value.trim());
+  void onSavedPrescribedOn(String value){
+    prescribedOn = DateTime.parse(value.trim());
   }
 
   //Date validation
@@ -451,11 +451,11 @@ class _Controller{
 
   }
 
-  String validatorPerscriptionNumber(String value){
+  String validatorPrescriptionNumber(String value){
 
     if(value == null || value.trim().length < 4){
 
-      return 'Invalid Perscription Number';
+      return 'Invalid Prescription Number';
     
     }
 
@@ -468,7 +468,7 @@ class _Controller{
         try{
           int.parse(value[i]);
         }catch(e){
-          return 'Perscription Number Must Contain Only Numbers and/or Hyphens';
+          return 'Prescription Number Must Contain Only Numbers and/or Hyphens';
         }
 
       }
@@ -477,7 +477,7 @@ class _Controller{
 
     if(hyphenCount > 3){
 
-      return 'Perscription Number Can Only Have at Most 3 Hyphens';
+      return 'Prescription Number Can Only Have at Most 3 Hyphens';
 
     }
 
@@ -544,7 +544,7 @@ class _Controller{
 
   }
 
-  //Perscription Validators
+  //Prescription Validators
   String validatorPillCount(String value){
 
     if(value == null || value.trim().length < 1 || value.trim().length > 4){
@@ -585,11 +585,11 @@ class _Controller{
 
   }
 
-  String validatorPerscriber(String value){
+  String validatorPrescriber(String value){
 
     if(value == null || value.trim().length < 6){
 
-      return 'Invalid Perscriber';
+      return 'Invalid Prescriber';
 
     }
 
