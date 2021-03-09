@@ -68,6 +68,7 @@ class _AddFamilyHistoryState extends State<AddFamilyHistory>{
                 ),
                 autocorrect: false,
                 onSaved: con.onSavedFamilyMembers,
+                validator: con.validatorDiagnosedMembers,
               ),
               CheckboxListTile(
                 title: Text('Is this hereditary?'),
@@ -180,6 +181,13 @@ void save() async {
   String validateDiagnosis(String value){
     if(value == null || value.trim().length < 4){
       return 'Invalid diagnosis, must be at least 4 characters.';
+    }
+    return null;
+  }
+
+  String validatorDiagnosedMembers(String value){
+    if(value == null || value.trim().length < 3){
+      return "Invalid Family Members List.";
     }
     return null;
   }
