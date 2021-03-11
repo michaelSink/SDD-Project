@@ -15,6 +15,8 @@ class _FeelGoodVault extends State<FeelGoodVault> {
   bool viewSelected;
   int view;
   _Controller con;
+  dynamic vault;
+  String vaultKey;
 
   @override
   void initState() {
@@ -47,6 +49,7 @@ class _FeelGoodVault extends State<FeelGoodVault> {
   Widget build(BuildContext context) {
     Map args = ModalRoute.of(context).settings.arguments;
     user ??= args['user'];
+    vault ??= args['vault'];
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -65,6 +68,7 @@ class _FeelGoodVault extends State<FeelGoodVault> {
                       title: Text("Pictures"),
                       onTap: () => setState(() {
                         viewSelected = true;
+                        vaultKey = "pictures";
                         view = 1;
                       }),
                     ),
@@ -77,6 +81,7 @@ class _FeelGoodVault extends State<FeelGoodVault> {
                       title: Text("Quotes"),
                       onTap: () => setState(() {
                         viewSelected = true;
+                        vaultKey = "quotes";
                         view = 2;
                       }),
                     ),
@@ -89,6 +94,7 @@ class _FeelGoodVault extends State<FeelGoodVault> {
                       title: Text("Songs"),
                       onTap: () => setState(() {
                         viewSelected = true;
+                        vaultKey = "songs";
                         view = 3;
                       }),
                     ),
@@ -98,9 +104,10 @@ class _FeelGoodVault extends State<FeelGoodVault> {
                     margin: EdgeInsets.all(15),
                     child: ListTile(
                       leading: Icon(Icons.video_collection_outlined),
-                      title: Text("Video"),
+                      title: Text("Videos"),
                       onTap: () => setState(() {
                         viewSelected = true;
+                        vaultKey = "videos";
                         view = 4;
                       }),
                     ),
@@ -113,6 +120,7 @@ class _FeelGoodVault extends State<FeelGoodVault> {
                       title: Text("Stories"),
                       onTap: () => setState(() {
                         viewSelected = true;
+                        vaultKey = "stories";
                         view = 5;
                       }),
                     ),
@@ -120,12 +128,6 @@ class _FeelGoodVault extends State<FeelGoodVault> {
                 ],
               )
             : con.buildList(view),
-        floatingActionButton: IconButton(
-          icon: Icon(Icons.radio_button_checked),
-          onPressed: () async {
-            await FirebaseController.getVault(user);
-          },
-        ),
       ),
     );
   }
@@ -134,14 +136,18 @@ class _FeelGoodVault extends State<FeelGoodVault> {
 class _Controller {
   _FeelGoodVault _state;
   _Controller(this._state);
-  var array;
+  //var array;
 
   Widget buildList(view) {
     Widget returnWidget;
-    array == null
+    _state.vault[_state.vaultKey].length == 0
         ? returnWidget = Text("Please enter some info")
         : returnWidget = ListView.builder(
-            itemCount: 2, itemBuilder: (BuildContext context, int index) {});
+            itemCount: _state.vault[_state.vaultKey].length, itemBuilder: (BuildContext context, int index) {
+              return Container(
+                child: Text(_state.vault[_state.vaultKey][index]),
+              );
+            });
 
     return returnWidget;
   }
