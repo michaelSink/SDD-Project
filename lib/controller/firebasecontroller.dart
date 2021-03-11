@@ -160,14 +160,13 @@ class FirebaseController {
         .delete();
   }
 
-  static Future<Map<String, dynamic>> getVault(email) async {
+  static Future<dynamic> getVault(email) async {
     QuerySnapshot snapshot = await Firestore().collection("vault").where("owner", isEqualTo: email).getDocuments();
     var result;
     if(snapshot != null && snapshot.documents.length != 0){
       var doc = snapshot.documents[0];
-      print(doc.documentID);
-      result = doc.data["stories"];
-      print(result);
+      result = doc.data;
+      return result;
     }
   }
 

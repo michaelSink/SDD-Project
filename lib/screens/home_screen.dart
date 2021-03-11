@@ -220,8 +220,9 @@ class _Controller {
 
   void accessVault() async {
     try {
+      dynamic vault = await FirebaseController.getVault(_state.user.email);
       await Navigator.pushNamed(_state.context, FeelGoodVault.routeName,
-          arguments: {'user': _state.user.email});
+          arguments: {'user': _state.user.email, "vault": vault});
     } catch (e) {
       MyDialog.info(
         context: _state.context,
