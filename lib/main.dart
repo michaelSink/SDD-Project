@@ -6,6 +6,7 @@ import 'package:SDD_Project/screens/familyHistory_screen.dart';
 import 'package:SDD_Project/screens/home_screen.dart';
 import 'package:SDD_Project/screens/hotline_screen.dart';
 import 'package:SDD_Project/screens/diagnosis_screen.dart';
+import 'package:SDD_Project/screens/journal_screen.dart';
 import 'package:SDD_Project/screens/prescriptionDetails_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:SDD_Project/screens/signup_screen.dart';
@@ -45,7 +46,8 @@ class AppRoutes extends StatelessWidget{
         AddDiagnosis.routeName: (context) => AddDiagnosis(),
         FamilyHistory.routeName: (context) => FamilyHistory(),
         AddFamilyHistory.routeName: (context) => AddFamilyHistory(),
-        FeelGoodVault.routeName: (context) => FeelGoodVault()
+        FeelGoodVault.routeName: (context) => FeelGoodVault(),
+        JournalScreen.routeName: (context) => JournalScreen()
       }
 
     );

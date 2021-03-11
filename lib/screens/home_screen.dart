@@ -1,5 +1,6 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/contacts.dart';
+import 'package:SDD_Project/model/journal.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
 import 'package:SDD_Project/model/diagnosis.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:SDD_Project/screens/hotline_screen.dart';
 import 'package:SDD_Project/screens/views/myimageview.dart';
 import '../controller/firebasecontroller.dart';
+import 'journal_screen.dart';
 import 'signin_screen.dart';
 import 'views/mydialog.dart';
 
@@ -71,7 +73,7 @@ class _HomeState extends State<HomeScreen> {
           children: [
             Card(
               child: ListTile(
-                leading: FlutterLogo(),
+                leading: Icon(Icons.person),
                 title: Text('Contacts'),
                 onTap: con.accessContacts,
               ),
@@ -106,11 +108,18 @@ class _HomeState extends State<HomeScreen> {
             ),
             Card(
               child: ListTile(
-                leading: FlutterLogo(),
+                leading: Icon(Icons.wb_sunny),
                 title: Text('Feel Good Vault'),
                 onTap: con.accessVault,
               ),
             ),
+              Card(
+              child: ListTile(
+                leading: Icon(Icons.book),
+                title: Text('Journal'),
+                onTap: con.journalScreen,
+              ),
+              ),
           ],
         ),
       ),
@@ -218,6 +227,21 @@ class _Controller {
         context: _state.context,
         content: e.toString(),
         title: 'Error loading Vault',
+      );
+    }
+  }
+
+  void journalScreen() async {
+    try {
+      List<Journal> journal =
+          await FirebaseController.getJournal(_state.user.email);
+      await Navigator.pushNamed(_state.context, JournalScreen.routeName,
+          arguments: {'user': _state.user.email, 'journal': journal});
+    } catch (e) {
+      MyDialog.info(
+        context: _state.context,
+        content: e.toString(),
+        title: 'Error loading Journal Screen',
       );
     }
   }
