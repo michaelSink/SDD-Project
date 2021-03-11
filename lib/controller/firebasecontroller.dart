@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:SDD_Project/model/contacts.dart';
 import 'package:SDD_Project/model/prescription.dart';
+import 'package:SDD_Project/model/journal.dart';
 
 class FirebaseController {
   static Future signIn(String email, String password) async {
@@ -156,6 +157,48 @@ class FirebaseController {
     await Firestore()
         .collection(Contacts.COLLECTION)
         .document(contact.docID)
+        .delete();
+  }
+
+  static Future<Map<String, dynamic>> getVault(email) async {
+    QuerySnapshot snapshot = await Firestore().collection("vault").where("owner", isEqualTo: email).getDocuments();
+    var result;
+    if(snapshot != null && snapshot.documents.length != 0){
+      var doc = snapshot.documents[0];
+      print(doc.documentID);
+      result = doc.data["stories"];
+      print(result);
+    }
+  }
+
+    static Future<List<Journal>> getJournal(String email) async {
+    QuerySnapshot snapshot = await Firestore()
+        .collection(Journal.COLLECTION)
+        .where("owner", isEqualTo: email)
+        .orderBy("date")
+        .getDocuments();
+
+    List<Journal> journal = [];
+    if (snapshot != null && snapshot.documents.length != 0) {
+      for (var doc in snapshot.documents) {
+        Journal j = Journal.deserialize(doc.data, doc.documentID);
+        journal.add(j);
+      }
+    }
+    return journal;
+  }
+
+    static Future<String> addJournal(Journal journal) async {
+    DocumentReference ref = await Firestore.instance
+        .collection(Journal.COLLECTION)
+        .add(journal.serialize());
+    return ref.documentID;
+  }
+
+  static Future deleteJournal(Journal journal) async {
+    await Firestore()
+        .collection(Journal.COLLECTION)
+        .document(journal.docID)
         .delete();
   }
 }
