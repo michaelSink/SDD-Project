@@ -207,7 +207,7 @@ class _EditPrescriptionState extends State<EditPrescription>{
                 ),
                 initialValue: "${prescription.filledDate.year.toString()}-${prescription.filledDate.month.toString().padLeft(2, '0')}-${prescription.filledDate.day.toString().padLeft(2,'0')}",
                 autocorrect: false,
-                validator: con.validatorDate,
+                validator: con.validatorDateBeforeToday,
                 onSaved: con.onSavedFilledDate,
               ),
               SizedBox(height: 10.0,),
@@ -229,7 +229,7 @@ class _EditPrescriptionState extends State<EditPrescription>{
                 ),
                 initialValue: "${prescription.prescribedOn.year.toString()}-${prescription.prescribedOn.month.toString().padLeft(2, '0')}-${prescription.prescribedOn.day.toString().padLeft(2,'0')}",
                 autocorrect: false,
-                validator: con.validatorDate,
+                validator: con.validatorDateBeforeToday,
                 onSaved: con.onSavedPrescribedOn,
               ),
             ],
@@ -353,6 +353,24 @@ class _Controller{
     return null;
 
   }
+
+  String validatorDateBeforeToday(String value){
+
+      String dateValidation = validatorDate(value);
+      if(dateValidation != null){
+
+        return dateValidation;
+
+      }else if(DateTime.parse(value.trim()).isAfter(DateTime.now())){
+
+        return 'Date Is Not Before Today, or Today';
+
+      }
+
+      return null;
+
+  }
+  
 
   //Pharmacy Validators
   String validatorPharmacyName(String value){
