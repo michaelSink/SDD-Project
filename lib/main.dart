@@ -1,5 +1,6 @@
 import 'package:SDD_Project/screens/addFamilyHistory_screen.dart';
 import 'package:SDD_Project/screens/addHotline_screen.dart';
+import 'package:SDD_Project/screens/calender_screen.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/editprescription_screen.dart';
 import 'package:SDD_Project/screens/familyHistory_screen.dart';
@@ -12,7 +13,9 @@ import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:SDD_Project/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
+import 'screens/aboutpage_screen.dart';
 import 'screens/adddiagnosis_screen.dart';
+import 'screens/addeventpage_screen.dart';
 import 'screens/prescription_screen.dart';
 import 'screens/addprescription_screen.dart';
 
@@ -47,7 +50,11 @@ class AppRoutes extends StatelessWidget{
         FamilyHistory.routeName: (context) => FamilyHistory(),
         AddFamilyHistory.routeName: (context) => AddFamilyHistory(),
         FeelGoodVault.routeName: (context) => FeelGoodVault(),
-        JournalScreen.routeName: (context) => JournalScreen()
+        JournalScreen.routeName: (context) => JournalScreen(),
+        AddEventPageScreen.routeName: (context) => AddEventPageScreen(),
+        AboutPageScreen.routeName: (context) => AboutPageScreen(),
+        CalenderScreen.routeName: (context) => CalenderScreen(),
+
       }
 
     );

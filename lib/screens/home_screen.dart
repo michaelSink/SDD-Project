@@ -1,6 +1,7 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/contacts.dart';
 import 'package:SDD_Project/model/journal.dart';
+import 'package:SDD_Project/screens/calender_screen.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
 import 'package:SDD_Project/model/diagnosis.dart';
@@ -15,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:SDD_Project/screens/hotline_screen.dart';
 import 'package:SDD_Project/screens/views/myimageview.dart';
 import '../controller/firebasecontroller.dart';
+import 'aboutpage_screen.dart';
 import 'journal_screen.dart';
 import 'signin_screen.dart';
 import 'views/mydialog.dart';
@@ -66,6 +68,11 @@ class _HomeState extends State<HomeScreen> {
                 title: Text('Sign Out'),
                 onTap: con.signOut,
               ),
+              ListTile(
+                leading: Icon(Icons.developer_board),
+                title: Text('About page'),
+                onTap: con.about,
+              ),
             ],
           ),
         ),
@@ -113,13 +120,20 @@ class _HomeState extends State<HomeScreen> {
                 onTap: con.accessVault,
               ),
             ),
-              Card(
+            Card(
               child: ListTile(
                 leading: Icon(Icons.book),
                 title: Text('Journal'),
                 onTap: con.journalScreen,
               ),
+            ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.calendar_today_rounded),
+                title: Text('Calender'),
+                onTap: con.calender,
               ),
+            ),
           ],
         ),
       ),
@@ -245,5 +259,13 @@ class _Controller {
         title: 'Error loading Journal Screen',
       );
     }
+  }
+
+  void about() {
+    Navigator.pushNamed(_state.context, AboutPageScreen.routeName);
+  }
+
+  void calender() {
+    Navigator.pushNamed(_state.context, CalenderScreen.routeName);
   }
 }
