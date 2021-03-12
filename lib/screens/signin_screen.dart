@@ -1,3 +1,4 @@
+import 'package:SDD_Project/controller/Authentication.dart';
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/home_screen.dart';
@@ -18,6 +19,7 @@ class SignInScreen extends StatefulWidget {
 class _SignInState extends State<SignInScreen> {
   _Controller con;
   var formKey = GlobalKey<FormState>();
+  FirebaseUser user;
 
   @override
   void initState() {
@@ -72,13 +74,53 @@ class _SignInState extends State<SignInScreen> {
               SizedBox(
                 height: 15,
               ),
-              RaisedButton(
-                child: Text(
-                  'Sign In',
-                  style: TextStyle(fontSize: 20.0, color: Colors.white),
+              Container(
+              width: 350.0,
+              height: 60.0,
+              padding: const EdgeInsets.only(top: 16.0),
+              child: RaisedButton(
+                  child: Text(
+                    'Sign In',
+                    style: TextStyle(fontSize: 20.0, color: Colors.white),
+                  ),
+                  color: Colors.blue,
+                  onPressed: con.signIn,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0)),
                 ),
-                color: Colors.blue,
-                onPressed: con.signIn,
+              ),
+              Container(
+                width: 350.0,
+                height: 60.0,
+                padding: const EdgeInsets.only(top: 16.0),
+                // ignore: deprecated_member_use
+                child: RaisedButton(
+                  child: Text(
+                    'Sign In With Google',
+                    style: TextStyle(fontSize: 20.0, color: Colors.white),
+                  ),
+                  color: Colors.blue,
+                  onPressed: () {
+                    signInWithGoogle().then((user) async {
+                      this.user = user;
+                      print('========google sign in start');
+                      var personalCare =
+                          await FirebaseController.getPersonalCare(user.email);
+                      print('========google call');
+                      Navigator.pushReplacementNamed(
+                          context, HomeScreen.routeName, arguments: {
+                        'user': user,
+                        'personalCareList': personalCare
+                      });
+                      print('========google sign in finish');
+                    });
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0)),
+                ),
+              ),
+              SizedBox(
+                height: 30.0,
               ),
               FlatButton(
                 onPressed: con.signUp,

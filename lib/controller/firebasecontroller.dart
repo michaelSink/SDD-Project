@@ -1,3 +1,4 @@
+import 'package:SDD_Project/model/SDD-Project.dart';
 import 'package:SDD_Project/model/diagnosis.dart';
 import 'package:SDD_Project/model/hotline.dart';
 import 'package:SDD_Project/model/medicalHistory.dart';
@@ -200,4 +201,21 @@ class FirebaseController {
         .document(journal.docID)
         .delete();
   }
+
+   static Future<List<PersonalCare>> getPersonalCare(String email) async {
+    QuerySnapshot querySnapshot = await Firestore.instance
+        .collection(PersonalCare.COLLECTION)
+        .where(PersonalCare.CREATED_BY, isEqualTo: email)
+        .getDocuments();
+
+    var result = <PersonalCare>[];
+    if (querySnapshot != null && querySnapshot.documents.length != 0) {
+      for (var doc in querySnapshot.documents) {
+        result.add(PersonalCare.deserialize(doc.data, doc.documentID));
+      }
+    }
+
+    return result;
+  }
+
 }
