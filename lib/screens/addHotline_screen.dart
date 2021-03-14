@@ -37,6 +37,9 @@ class _AddHotlineState extends State<AddHotline>{
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Hotline'),
+        actions: [
+          IconButton(icon: Icon(Icons.check), onPressed: con.save),
+        ],
       ),
       body: Form(
         key: formKey,
@@ -87,11 +90,6 @@ class _AddHotlineState extends State<AddHotline>{
                 autocorrect: false,
                 validator: con.validatorPhoneNumber,
                 onSaved: con.onSavedPhoneNumber,
-              ),
-              Divider(height: 8.0,),
-              RaisedButton(
-                child: Text('Submit'),
-                onPressed: con.save,
               ),
             ],
           ),

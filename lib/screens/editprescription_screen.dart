@@ -37,7 +37,7 @@ class _EditPrescriptionState extends State<EditPrescription>{
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Prescription'),
+        title: Text('Edit Prescription'),
         actions: [
           IconButton(
             icon: Icon(Icons.check),
