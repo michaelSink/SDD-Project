@@ -1,5 +1,6 @@
 import 'package:SDD_Project/screens/addFamilyHistory_screen.dart';
 import 'package:SDD_Project/screens/addHotline_screen.dart';
+import 'package:SDD_Project/screens/addfeelgoodvault_screen.dart';
 import 'package:SDD_Project/screens/calender_screen.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/editprescription_screen.dart';
@@ -54,6 +55,7 @@ class AppRoutes extends StatelessWidget{
         AddEventPageScreen.routeName: (context) => AddEventPageScreen(),
         AboutPageScreen.routeName: (context) => AboutPageScreen(),
         CalenderScreen.routeName: (context) => CalenderScreen(),
+        AddFeelGoodVault.routeName: (context) => AddFeelGoodVault(),
 
       }
 

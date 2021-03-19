@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:SDD_Project/controller/firebasecontroller.dart';
+import 'package:SDD_Project/model/vault.dart';
+import 'package:SDD_Project/screens/addfeelgoodvault_screen.dart';
 import 'package:flutter/material.dart';
+
 
 class FeelGoodVault extends StatefulWidget {
   static const routeName = "/homescreen/feelgoodvault";
@@ -15,8 +20,9 @@ class _FeelGoodVault extends State<FeelGoodVault> {
   bool viewSelected;
   int view;
   _Controller con;
-  dynamic vault;
+  Vault vault;
   String vaultKey;
+  File image;
 
   @override
   void initState() {
@@ -31,6 +37,8 @@ class _FeelGoodVault extends State<FeelGoodVault> {
     super.setState(fn);
     //print("View is " + viewSelected.toString() + " view = " + view.toString());
   }
+
+  render(fn) => setState(fn);
 
   Future<bool> _onWillPop() async {
     bool result;
@@ -128,6 +136,72 @@ class _FeelGoodVault extends State<FeelGoodVault> {
                 ],
               )
             : con.buildList(view),
+        floatingActionButton: IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () {
+            //open form to add new item to vault
+            showDialog(
+              barrierDismissible: true,
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Center(
+                      child:
+                          Container(child: Text("Which do you want to add?"))),
+                  actions: <Widget>[
+                    Center(
+                        child: Container(
+                      child: ElevatedButton(
+                          onPressed: () {
+                            //print("pic");
+                            con.getForm(1);
+                          },
+                          child: Text("Pictures")),
+                      width: 150,
+                    )),
+                    Center(
+                        child: Container(
+                      child: ElevatedButton(
+                          onPressed: () {
+                            //print("quote");
+                            con.getForm(2);
+                          },
+                          child: Text("Quotes")),
+                      width: 150,
+                    )),
+                    Center(
+                        child: Container(
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  //print("song");
+                                  con.getForm(3);
+                                },
+                                child: Text("Songs")),
+                            width: 150)),
+                    Center(
+                        child: Container(
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  //print("story");
+                                  con.getForm(4);
+                                },
+                                child: Text("Stories")),
+                            width: 150)),
+                    Center(
+                        child: Container(
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  //print("video");
+                                  con.getForm(5);
+                                },
+                                child: Text("Videos")),
+                            width: 150)),
+                  ],
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
@@ -136,19 +210,24 @@ class _FeelGoodVault extends State<FeelGoodVault> {
 class _Controller {
   _FeelGoodVault _state;
   _Controller(this._state);
-  //var array;
-
+  
   Widget buildList(view) {
     Widget returnWidget;
-    _state.vault[_state.vaultKey].length == 0
-        ? returnWidget = Text("Please enter some info")
+    _state.vault == null
+        ? returnWidget = Text("Please Add to your feel good vault")
         : returnWidget = ListView.builder(
-            itemCount: _state.vault[_state.vaultKey].length, itemBuilder: (BuildContext context, int index) {
+            itemCount: _state.vault.pictures.length,
+            itemBuilder: (BuildContext context, int index) {
               return Container(
-                child: Text(_state.vault[_state.vaultKey][index]),
+                //child: Text(_state.vault[_state.vaultKey][index]),
               );
             });
 
     return returnWidget;
   }
+
+  void getForm(view) async {
+    await Navigator.pushNamed(_state.context, AddFeelGoodVault.routeName, arguments: {'user': _state.user, 'view': view, 'vault': _state.vault});
+  }
+
 }

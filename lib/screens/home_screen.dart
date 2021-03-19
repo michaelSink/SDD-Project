@@ -1,6 +1,7 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/contacts.dart';
 import 'package:SDD_Project/model/journal.dart';
+import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/screens/calender_screen.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
@@ -234,9 +235,8 @@ class _Controller {
 
   void accessVault() async {
     try {
-      dynamic vault = await FirebaseController.getVault(_state.user.email);
-      await Navigator.pushNamed(_state.context, FeelGoodVault.routeName,
-          arguments: {'user': _state.user.email, "vault": vault});
+      Vault vault = await FirebaseController.getVault(_state.user.email);
+      await Navigator.pushNamed(_state.context, FeelGoodVault.routeName,arguments: {'user': _state.user.email, "vault": vault});
     } catch (e) {
       MyDialog.info(
         context: _state.context,

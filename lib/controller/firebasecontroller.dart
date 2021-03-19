@@ -1,12 +1,17 @@
+import 'dart:io';
+
 import 'package:SDD_Project/model/SDD-Project.dart';
 import 'package:SDD_Project/model/diagnosis.dart';
 import 'package:SDD_Project/model/hotline.dart';
 import 'package:SDD_Project/model/medicalHistory.dart';
+import 'package:SDD_Project/model/vault.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:SDD_Project/model/contacts.dart';
 import 'package:SDD_Project/model/prescription.dart';
 import 'package:SDD_Project/model/journal.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 
 class FirebaseController {
   static Future signIn(String email, String password) async {
@@ -161,17 +166,22 @@ class FirebaseController {
         .delete();
   }
 
-  static Future<dynamic> getVault(email) async {
-    QuerySnapshot snapshot = await Firestore().collection("vault").where("owner", isEqualTo: email).getDocuments();
-    var result;
-    if(snapshot != null && snapshot.documents.length != 0){
-      var doc = snapshot.documents[0];
-      result = doc.data;
+  static Future<Vault> getVault(email) async {
+    QuerySnapshot snapshot = await Firestore()
+        .collection("vault")
+        .where("owner", isEqualTo: email)
+        .getDocuments();
+    Vault result;
+    if (snapshot != null && snapshot.documents.length != 0) {
+      var doc = snapshot.documents[0]; //possibly change later
+      print(doc.data);
+      result = Vault.deserialize(doc.data, doc.documentID);
       return result;
     }
+    return null;
   }
 
-    static Future<List<Journal>> getJournal(String email) async {
+  static Future<List<Journal>> getJournal(String email) async {
     QuerySnapshot snapshot = await Firestore()
         .collection(Journal.COLLECTION)
         .where("owner", isEqualTo: email)
@@ -188,7 +198,7 @@ class FirebaseController {
     return journal;
   }
 
-    static Future<String> addJournal(Journal journal) async {
+  static Future<String> addJournal(Journal journal) async {
     DocumentReference ref = await Firestore.instance
         .collection(Journal.COLLECTION)
         .add(journal.serialize());
@@ -202,7 +212,7 @@ class FirebaseController {
         .delete();
   }
 
-   static Future<List<PersonalCare>> getPersonalCare(String email) async {
+  static Future<List<PersonalCare>> getPersonalCare(String email) async {
     QuerySnapshot querySnapshot = await Firestore.instance
         .collection(PersonalCare.COLLECTION)
         .where(PersonalCare.CREATED_BY, isEqualTo: email)
@@ -218,4 +228,43 @@ class FirebaseController {
     return result;
   }
 
+  //3 functions for adding pic to storage, then adding information about pic to firestore, then firestore doc to vault array
+  static Future<Map<String, String>> addPicToStorage(
+      {@required File image, @required String email}) async {
+    print("Start add Pic to Storate");
+    String filePath = "${Picture.IMAGE_FOLDER}/$email/${DateTime.now()}";
+    StorageUploadTask task =
+        FirebaseStorage.instance.ref().child(filePath).putFile(image);
+
+    var download = await task.onComplete;
+    var url = await download.ref.getDownloadURL();
+    return {"url": url, "path": filePath};
+  }
+
+  static Future<String> addPicToFirestore(Picture p) async {
+    print("Start add Pic to firestore");
+    DocumentReference ref =
+        await Firestore.instance.collection(Vault.PICTURES).add(p.serialize());
+    print("Leaving addPicToFirestore");
+    return ref.documentID;
+  }
+
+  static Future addPicToVault(String id, String vaultId) async {
+    String ref = "${Vault.PICTURES}/$id";
+    print("Start add Pic ref to Vault");
+    
+    await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .updateData({Vault.PICTURES: [ref]});
+  }
+
+  static Future<String> createVault(Vault v) async {
+    DocumentReference ref = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .add(v.serialize());
+    print("Inside create vault");
+   
+    return ref.documentID;
+  }
 }
