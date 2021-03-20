@@ -168,14 +168,31 @@ class FirebaseController {
 
   static Future<Vault> getVault(email) async {
     QuerySnapshot snapshot = await Firestore()
-        .collection("vault")
+        .collection(Vault.COLLECTION)
         .where("owner", isEqualTo: email)
         .getDocuments();
+
     Vault result;
+    List<Picture> pics = [];
     if (snapshot != null && snapshot.documents.length != 0) {
-      var doc = snapshot.documents[0]; //possibly change later
-      print(doc.data);
-      result = Vault.deserialize(doc.data, doc.documentID);
+      var doc = snapshot.documents[0]; //get the first vault from the search
+      //start query for getting pics from the collection
+      QuerySnapshot snap = await Firestore.instance
+          .collection(Vault.COLLECTION)
+          .document(doc.documentID)
+          .collection(Vault.PICTURES)
+          .getDocuments();
+      //print(doc.data);
+      if (snap != null && snap.documents.length != 0) {
+        var doc2;
+        for (int i = 0; i < snap.documents.length; i++) {
+          doc2 = snap.documents[i];
+          //print(doc2.data);
+          Picture p = Picture.deserialize(doc2.data, doc2.documentID);
+          pics.add(p);
+        }
+      }
+      result = Vault.deserialize(doc.data, doc.documentID, pics);
       return result;
     }
     return null;
@@ -231,7 +248,7 @@ class FirebaseController {
   //3 functions for adding pic to storage, then adding information about pic to firestore, then firestore doc to vault array
   static Future<Map<String, String>> addPicToStorage(
       {@required File image, @required String email}) async {
-    print("Start add Pic to Storate");
+    print("Start add Pic to Storage");
     String filePath = "${Picture.IMAGE_FOLDER}/$email/${DateTime.now()}";
     StorageUploadTask task =
         FirebaseStorage.instance.ref().child(filePath).putFile(image);
@@ -241,30 +258,21 @@ class FirebaseController {
     return {"url": url, "path": filePath};
   }
 
-  static Future<String> addPicToFirestore(Picture p) async {
-    print("Start add Pic to firestore");
-    DocumentReference ref =
-        await Firestore.instance.collection(Vault.PICTURES).add(p.serialize());
-    print("Leaving addPicToFirestore");
-    return ref.documentID;
-  }
-
-  static Future addPicToVault(String id, String vaultId) async {
-    String ref = "${Vault.PICTURES}/$id";
+  static Future<String> addPicToVault(String vaultId, Picture p) async {
     print("Start add Pic ref to Vault");
-    
-    await Firestore.instance
+    DocumentReference doc = await Firestore.instance
         .collection(Vault.COLLECTION)
         .document(vaultId)
-        .updateData({Vault.PICTURES: [ref]});
+        .collection(Vault.PICTURES)
+        .add(p.serialize());
+    return doc.documentID;
   }
+  //End of adding pics
 
   static Future<String> createVault(Vault v) async {
-    DocumentReference ref = await Firestore.instance
-        .collection(Vault.COLLECTION)
-        .add(v.serialize());
+    CollectionReference ref = Firestore.instance.collection(Vault.COLLECTION);
+    DocumentReference doc = await ref.add(v.serialize());
     print("Inside create vault");
-   
-    return ref.documentID;
+    return doc.documentID;
   }
 }

@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Vault {
   static const COLLECTION = "vault";
 
@@ -12,13 +10,13 @@ class Vault {
 
   String owner;
   String docId;
-  List<dynamic> pictures;
   List<dynamic> quotes;
   List<dynamic> songs;
   List<dynamic> stories;
   List<dynamic> videos;
+  List<Picture> pictures;
 
-  List<Picture> _pictures;
+  //for later
   List<String> _quotes;
   List<Songs> _songs;
   List<String> _stories;
@@ -33,7 +31,6 @@ class Vault {
     this.videos,
     this.docId,
   }) {
-    this.pictures ??= [];
     this.quotes ??= [];
     this.songs ??= [];
     this.stories ??= [];
@@ -43,7 +40,6 @@ class Vault {
   Map<String, dynamic> serialize() {
     return <String, dynamic>{
       OWNER: owner,
-      PICTURES: pictures,
       QUOTES: quotes,
       SONGS: songs,
       STORIES: stories,
@@ -51,15 +47,16 @@ class Vault {
     };
   }
 
-  static Vault deserialize(data, String doc) {
+  static Vault deserialize(data, String doc, List<Picture> pics) {
     return Vault(
         docId: doc,
         owner: data[Vault.OWNER],
-        pictures: data[Vault.PICTURES],
         quotes: data[Vault.QUOTES],
         songs: data[Vault.SONGS],
         stories: data[Vault.STORIES],
-        videos: data[Vault.VIDEOS]);
+        videos: data[Vault.VIDEOS],
+        pictures: pics,
+    );
   }
 }
 

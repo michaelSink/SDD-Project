@@ -213,13 +213,13 @@ class _Controller {
   
   Widget buildList(view) {
     Widget returnWidget;
-    _state.vault == null
+    _state.vault.pictures.length == 0
         ? returnWidget = Text("Please Add to your feel good vault")
         : returnWidget = ListView.builder(
-            itemCount: _state.vault.pictures.length,
+            itemCount: 1,
             itemBuilder: (BuildContext context, int index) {
               return Container(
-                //child: Text(_state.vault[_state.vaultKey][index]),
+                child: Text("Items in pictures"),
               );
             });
 
@@ -228,6 +228,8 @@ class _Controller {
 
   void getForm(view) async {
     await Navigator.pushNamed(_state.context, AddFeelGoodVault.routeName, arguments: {'user': _state.user, 'view': view, 'vault': _state.vault});
+     _state.vault = await FirebaseController.getVault(_state.user);
+    _state.setState(() {});
   }
 
 }

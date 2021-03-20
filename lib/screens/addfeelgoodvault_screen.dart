@@ -229,19 +229,15 @@ class _Controller {
     b = b.toLowerCase();
     name = c + b;
   }
-
   void saveQuote(String s) {
     quote = s;
   }
-
   void saveSong(String s) {
     song = s;
   }
-
   void saveStory(String s) {
     story = s;
   }
-
   void saveVideo(String s) {
     video = s;
   }
@@ -253,28 +249,24 @@ class _Controller {
     }
     return null;
   }
-
   String validateQuote(String s) {
     if (s.isEmpty) {
       return "Please input a quote";
     }
     return null;
   }
-
   String validateSong(String s) {
     if (s.isEmpty) {
       return "Please input a quote";
     }
     return null;
   }
-
   String validateStory(String s) {
     if (s.isEmpty) {
       return "Please input a quote";
     }
     return null;
   }
-
   String validateVideo(String s) {
     if (s.isEmpty) {
       return "Please input a quote";
@@ -317,7 +309,6 @@ class _Controller {
     }
 
     _state.formKey.currentState.save();
-
     MyDialog.circularProgressStart(_state.context);
 
     try {
@@ -330,19 +321,9 @@ class _Controller {
         photoURL: photo["url"],
         owner: _state.user,
       );
-
-      p.docId = await FirebaseController.addPicToFirestore(p);
+      //print("Made new picture");
       //print(p.docId);
-      if (_state.vault != null) {
-        await FirebaseController.addPicToVault(
-            p.docId, _state.vault.docId);
-      }else{
-        var v = Vault(owner: _state.user);
-        v.docId = await FirebaseController.createVault(v);
-        _state.vault = v;
-        //print(_state.vault.docId);
-        await FirebaseController.addPicToVault(p.docId, _state.vault.docId);
-      }
+      await FirebaseController.addPicToVault(_state.vault.docId, p);
 
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context);
@@ -359,7 +340,16 @@ class _Controller {
     }
   }
 
-  void uploadQuote() {}
+  void uploadQuote() {
+    _state.formKey.currentState.save();
+    MyDialog.circularProgressStart(_state.context);
+
+    try{
+      //await FirebaseController.addQuote(quote);
+    }catch(e){
+
+    }
+  }
 
   void uploadSong() {}
 
