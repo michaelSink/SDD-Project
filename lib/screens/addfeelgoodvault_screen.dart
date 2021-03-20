@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/screens/views/mydialog.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -60,7 +61,7 @@ class _AddFeelGoodVault extends State<AddFeelGoodVault> {
 class _Controller {
   _AddFeelGoodVault _state;
   _Controller(this._state);
-  String name, quote, song, story, video, newValue;
+  String name, quote, song, story, video, songValue, videoValue;
 
   Widget getForm(int view) {
     switch (view) {
@@ -193,11 +194,11 @@ class _Controller {
                     return DropdownMenuItem(
                         child: new Text(value), value: value);
                   }).toList(),
-                  value: newValue,
+                  value: songValue,
                   hint: Text("Category"),
                   onChanged: (String changedValue) {
                     _state.setState(() {
-                      newValue = changedValue;
+                      songValue = changedValue;
                     });
                   },
                 ),
@@ -227,18 +228,40 @@ class _Controller {
       case 5:
         return Form(
           key: _state.formKey5,
-          child: Container(
-            width: MediaQuery.of(_state.context).size.width,
-            padding: EdgeInsets.all(5),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: "Video URL",
+          child: Column(
+            children: [
+              Container(
+                width: MediaQuery.of(_state.context).size.width,
+                padding: EdgeInsets.all(5),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Video URL",
+                  ),
+                  autocorrect: true,
+                  maxLines: 1,
+                  validator: validateVideo,
+                  onSaved: saveVideo,
+                ),
               ),
-              autocorrect: true,
-              maxLines: 1,
-              validator: validateVideo,
-              onSaved: saveVideo,
-            ),
+              Container(
+                width: MediaQuery.of(_state.context).size.width,
+                padding: EdgeInsets.all(5),
+                child: DropdownButton(
+                  items: <String>["Happy", "Energetic", "Peaceful"]
+                      .map((String value) {
+                    return DropdownMenuItem(
+                        child: new Text(value), value: value);
+                  }).toList(),
+                  value: videoValue,
+                  hint: Text("Category"),
+                  onChanged: (String changedValue) {
+                    _state.setState(() {
+                      videoValue = changedValue;
+                    });
+                  },
+                ),
+              ),
+            ],
           ),
         );
         break;
@@ -262,20 +285,21 @@ class _Controller {
 
   void saveSong(String s) {
     song = s;
+    songValue;
   }
 
   void saveStory(String s) {
     story = s;
-    newValue;
   }
 
   void saveVideo(String s) {
     video = s;
+    videoValue;
   }
 
   String validateName(String s) {
     if (s.isEmpty) {
-      print("Here");
+      //print("Here");
       return "Name cannot be empty";
     }
     return null;
@@ -290,24 +314,27 @@ class _Controller {
 
   String validateSong(String s) {
     if (s.isEmpty) {
-      return "Please input a quote";
+      return "Please input a song url";
+    }
+    if (songValue.isEmpty) {
+      return "Value hasn't been selected";
     }
     return null;
   }
 
   String validateStory(String s) {
     if (s.isEmpty) {
-      return "Please input a quote";
-    }
-    if (newValue.isEmpty) {
-      return "Value hasn't been selected";
+      return "Please type a story";
     }
     return null;
   }
 
   String validateVideo(String s) {
     if (s.isEmpty) {
-      return "Please input a quote";
+      return "Please input a video url";
+    }
+    if (videoValue.isEmpty) {
+      return "Value hasn't been selected";
     }
     return null;
   }
@@ -361,7 +388,7 @@ class _Controller {
       );
       //print("Made new picture");
       //print(p.docId);
-      await FirebaseController.addPicToVault(_state.vault.docId, p);
+      p.docId = await FirebaseController.addPicToVault(_state.vault.docId, p);
 
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context); //pop form screen
@@ -414,8 +441,18 @@ class _Controller {
     _state.formKey3.currentState.save();
     MyDialog.circularProgressStart(_state.context);
 
-    MyDialog.circularProgressEnd(_state.context);
-    try {} catch (e) {
+    try {
+      var s = Songs(name: song, category: songValue);
+      s.docId = await FirebaseController.addSong(_state.vault.docId, s);
+
+      MyDialog.circularProgressEnd(_state.context);
+      Navigator.pop(_state.context); //pop form screen
+      Navigator.pop(_state.context); //pop old AlertDialog
+      MyDialog.info(
+          context: _state.context,
+          title: "Add Song Complete",
+          content: "Song added successfully");
+    } catch (e) {
       MyDialog.circularProgressEnd(_state.context);
       MyDialog.info(
           context: _state.context,
@@ -449,7 +486,33 @@ class _Controller {
     }
   }
 
-  void uploadVideo() async {}
+  void uploadVideo() async {
+    if (!_state.formKey5.currentState.validate()) {
+      return;
+    }
+
+    _state.formKey5.currentState.save();
+    MyDialog.circularProgressStart(_state.context);
+
+    try {
+      var v = Videos(name: video, category: videoValue);
+      v.docId = await FirebaseController.addVideo(_state.vault.docId, v);
+
+      MyDialog.circularProgressEnd(_state.context);
+      Navigator.pop(_state.context); //pop form screen
+      Navigator.pop(_state.context); //pop old AlertDialog
+      MyDialog.info(
+          context: _state.context,
+          title: "Add Video Complete",
+          content: "Video added successfully");
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Add Video Error",
+          content: e.toString());
+    }
+  }
 
   void getPicture(String src) async {
     try {

@@ -174,25 +174,54 @@ class FirebaseController {
 
     Vault result;
     List<Picture> pics = [];
+    List<Songs> songs = [];
+    List<Videos> vids = [];
     if (snapshot != null && snapshot.documents.length != 0) {
       var doc = snapshot.documents[0]; //get the first vault from the search
+
       //start query for getting pics from the collection
       QuerySnapshot snap = await Firestore.instance
           .collection(Vault.COLLECTION)
           .document(doc.documentID)
           .collection(Vault.PICTURES)
           .getDocuments();
-      //print(doc.data);
       if (snap != null && snap.documents.length != 0) {
         var doc2;
         for (int i = 0; i < snap.documents.length; i++) {
           doc2 = snap.documents[i];
-          //print(doc2.data);
           Picture p = Picture.deserialize(doc2.data, doc2.documentID);
           pics.add(p);
         }
       }
-      result = Vault.deserialize(doc.data, doc.documentID, pics);
+      //start query for songs
+      QuerySnapshot snap2 = await Firestore.instance
+          .collection(Vault.COLLECTION)
+          .document(doc.documentID)
+          .collection(Vault.SONGS)
+          .getDocuments();
+      if (snap2 != null && snap2.documents.length != 0) {
+        var doc3;
+        for (int i = 0; i < snap2.documents.length; i++) {
+          doc3 = snap2.documents[i];
+          Songs s = Songs.deserialize(doc3.data, doc3.documentID);
+          songs.add(s);
+        }
+      }
+      //start query for vids
+      QuerySnapshot snap3 = await Firestore.instance
+          .collection(Vault.COLLECTION)
+          .document(doc.documentID)
+          .collection(Vault.VIDEOS)
+          .getDocuments();
+      if (snap2 != null && snap3.documents.length != 0) {
+        var doc4;
+        for (int i = 0; i < snap3.documents.length; i++) {
+          doc4 = snap3.documents[i];
+          Videos v = Videos.deserialize(doc4.data, doc.documentID);
+          vids.add(v);
+        }
+      }
+      result = Vault.deserialize(doc.data, doc.documentID, pics, songs, vids);
       return result;
     }
     return null;
@@ -262,7 +291,7 @@ class FirebaseController {
           .updateData({Vault.QUOTES: output});
     } else {
       output.add(q);
-       await Firestore.instance
+      await Firestore.instance
           .collection(Vault.COLLECTION)
           .document(snapshot.documents[0].documentID)
           .updateData({Vault.QUOTES: output});
@@ -287,7 +316,7 @@ class FirebaseController {
           .updateData({Vault.STORIES: output});
     } else {
       output.add(s);
-       await Firestore.instance
+      await Firestore.instance
           .collection(Vault.COLLECTION)
           .document(snapshot.documents[0].documentID)
           .updateData({Vault.STORIES: output});
@@ -318,6 +347,26 @@ class FirebaseController {
     return doc.documentID;
   }
   //End of adding pics
+
+  static Future<String> addSong(String vaultId, Songs s) async {
+    print("Start add song to Vault");
+    DocumentReference doc = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.SONGS)
+        .add(s.serialize());
+    return doc.documentID;
+  }
+
+  static Future<String> addVideo(String vaultId, Videos v) async {
+    print("Start add video to Vault");
+    DocumentReference doc = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.VIDEOS)
+        .add(v.serialize());
+    return doc.documentID;
+  }
 
   static Future<String> createVault(Vault v) async {
     CollectionReference ref = Firestore.instance.collection(Vault.COLLECTION);

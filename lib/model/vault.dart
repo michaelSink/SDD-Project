@@ -10,15 +10,15 @@ class Vault {
 
   String owner;
   String docId;
-  List<dynamic> songs;
+  List<Songs> songs;
   List<dynamic> stories;
-  List<dynamic> videos;
   List<Picture> pictures;
   List<dynamic> quotes;
+  List<Videos> videos;
 
   List<Songs> _songs;
   List<String> _stories;
-  List<Videos> _videos;
+
 
   Vault({
     this.owner,
@@ -30,29 +30,25 @@ class Vault {
     this.docId,
   }) {
     this.quotes ??= [];
-    this.songs ??= [];
     this.stories ??= [];
-    this.videos ??= [];
   }
 
   Map<String, dynamic> serialize() {
     return <String, dynamic>{
       OWNER: owner,
       QUOTES: quotes,
-      SONGS: songs,
       STORIES: stories,
-      VIDEOS: videos,
     };
   }
 
-  static Vault deserialize(data, String doc, List<Picture> pics) {
+  static Vault deserialize(data, String doc, List<Picture> pics, List<Songs> songs, List<Videos> vids) {
     return Vault(
         docId: doc,
         owner: data[Vault.OWNER],
         quotes: data[Vault.QUOTES],
-        songs: data[Vault.SONGS],
+        songs: songs,
         stories: data[Vault.STORIES],
-        videos: data[Vault.VIDEOS],
+        videos: vids,
         pictures: pics,
     );
   }
@@ -109,11 +105,28 @@ class Songs {
 
   String name;
   String category;
+  String docId;
 
   Songs({
     this.name,
     this.category,
+    this.docId,
   }) {}
+
+  Map<String, dynamic> serialize(){
+    return <String, dynamic>{
+      NAME: name,
+      CATEGORY: category,
+    };
+  }
+
+  static Songs deserialize(Map<String, dynamic> data, String doc){
+    return Songs(
+      name: data[Songs.NAME],
+      category: data[Songs.CATEGORY],
+      docId: doc,
+      );
+  }
 }
 
 class Videos {
@@ -123,9 +136,26 @@ class Videos {
 
   String name;
   String category;
+  String docId;
 
   Videos({
     this.name,
     this.category,
+    this.docId,
   }) {}
+
+    Map<String, dynamic> serialize(){
+    return <String, dynamic>{
+      NAME: name,
+      CATEGORY: category,
+    };
+  }
+
+    static Videos deserialize(Map<String, dynamic> data, String doc){
+    return Videos(
+      name: data[Songs.NAME],
+      category: data[Songs.CATEGORY],
+      docId: doc,
+      );
+  }
 }
