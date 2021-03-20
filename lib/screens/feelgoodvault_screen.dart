@@ -5,7 +5,6 @@ import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/screens/addfeelgoodvault_screen.dart';
 import 'package:flutter/material.dart';
 
-
 class FeelGoodVault extends StatefulWidget {
   static const routeName = "/homescreen/feelgoodvault";
 
@@ -210,27 +209,86 @@ class _FeelGoodVault extends State<FeelGoodVault> {
 class _Controller {
   _FeelGoodVault _state;
   _Controller(this._state);
-  
+
   Widget buildList(view) {
     Widget returnWidget;
-    _state.vault.pictures.length == 0
-        ? returnWidget = Text("Please Add to your feel good vault")
-        : returnWidget = ListView.builder(
-            itemCount: 1,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                child: Text("Items in pictures"),
-              );
-            });
+
+    switch (view) {
+      case 1:
+        if (_state.vault.pictures == null) {
+          returnWidget = Text("Please Add to your pics");
+        } else {
+          returnWidget = ListView.builder(
+              itemCount: _state.vault.pictures.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  child: Text("Item in pictures"),
+                );
+              });
+        }
+        break;
+      case 2:
+        if(_state.vault.quotes == null){
+           returnWidget = Text("Please Add to your quotes");
+        }else{
+           returnWidget = ListView.builder(
+              itemCount: _state.vault.quotes.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  child: Text("Item in quotes"),
+                );
+              });
+        }
+        break;
+      case 3:
+       if(_state.vault.songs == null){
+           returnWidget = Text("Please Add to your songs");
+        }else{
+           returnWidget = ListView.builder(
+              itemCount: _state.vault.songs.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  child: Text("Item in songs"),
+                );
+              });
+        }
+        break;
+      case 4:
+       if(_state.vault.stories == null){
+           returnWidget = Text("Please Add to your stories");
+        }else{
+           returnWidget = ListView.builder(
+              itemCount: _state.vault.stories.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  child: Text("Item in stories"),
+                );
+              });
+        }
+        break;
+      case 5:
+       if(_state.vault.videos == null){
+           returnWidget = Text("Please Add to your videos");
+        }else{
+           returnWidget = ListView.builder(
+              itemCount: _state.vault.videos.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  child: Text("Item in videos"),
+                );
+              });
+        }
+        break;
+    }
 
     return returnWidget;
   }
 
   void getForm(view) async {
     print(view);
-    await Navigator.pushNamed(_state.context, AddFeelGoodVault.routeName, arguments: {'user': _state.user, 'view': view, 'vault': _state.vault});
-     _state.vault = await FirebaseController.getVault(_state.user);
+    await Navigator.pushNamed(_state.context, AddFeelGoodVault.routeName,
+        arguments: {'user': _state.user, 'view': view, 'vault': _state.vault});
+    _state.vault = await FirebaseController.getVault(_state.user);
     _state.setState(() {});
   }
-
 }
