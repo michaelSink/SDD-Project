@@ -221,60 +221,70 @@ class _Controller {
           returnWidget = ListView.builder(
               itemCount: _state.vault.pictures.length,
               itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  child: Text("Item in pictures"),
+                return Card(
+                  margin: EdgeInsets.all(10),
+                  child: ListTile(
+                    title: Image.network(_state.vault.pictures[index].photoURL),
+                    subtitle: Center(child: Text(_state.vault.pictures[index].name)),
+                  ),               
                 );
               });
         }
         break;
       case 2:
-        if(_state.vault.quotes == null){
-           returnWidget = Text("Please Add to your quotes");
-        }else{
-           returnWidget = ListView.builder(
+        if (_state.vault.quotes == null) {
+          returnWidget = Text("Please Add to your quotes");
+        } else {
+          returnWidget = ListView.builder(
               itemCount: _state.vault.quotes.length,
               itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  child: Text("Item in quotes"),
+                return ListTile(
+                title: Text(_state.vault.quotes[index]),
+                contentPadding: EdgeInsets.all(5),
+                horizontalTitleGap: 2.0,
                 );
               });
         }
         break;
       case 3:
-       if(_state.vault.songs == null){
-           returnWidget = Text("Please Add to your songs");
-        }else{
-           returnWidget = ListView.builder(
+        if (_state.vault.songs == null) {
+          returnWidget = Text("Please Add to your songs");
+        } else {
+          returnWidget = ListView.builder(
               itemCount: _state.vault.songs.length,
               itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  child: Text("Item in songs"),
+                return ListTile(
+                  title: Text(_state.vault.songs[index].name),
+                  subtitle: Text(_state.vault.songs[index].category),
                 );
               });
         }
         break;
       case 4:
-       if(_state.vault.stories == null){
-           returnWidget = Text("Please Add to your stories");
-        }else{
-           returnWidget = ListView.builder(
+        if (_state.vault.stories == null) {
+          returnWidget = Text("Please Add to your stories");
+        } else {
+          returnWidget = ListView.builder(
               itemCount: _state.vault.stories.length,
               itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  child: Text("Item in stories"),
+                return Card(
+                  child: Text(_state.vault.stories[index], style: TextStyle(fontSize: 18),),
+                  margin: EdgeInsets.all(5),
+                  elevation: 2,
                 );
               });
         }
         break;
       case 5:
-       if(_state.vault.videos == null){
-           returnWidget = Text("Please Add to your videos");
-        }else{
-           returnWidget = ListView.builder(
+        if (_state.vault.videos == null) {
+          returnWidget = Text("Please Add to your videos");
+        } else {
+          returnWidget = ListView.builder(
               itemCount: _state.vault.videos.length,
               itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  child: Text("Item in videos"),
+                return ListTile(
+                  title: Text(_state.vault.videos[index].name),
+                  subtitle: Text(_state.vault.videos[index].category),
                 );
               });
         }
