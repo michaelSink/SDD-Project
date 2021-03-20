@@ -215,7 +215,7 @@ class _Controller {
 
     switch (view) {
       case 1:
-        if (_state.vault.pictures == null) {
+        if (_state.vault.pictures == null || _state.vault.pictures.length == 0) {
           returnWidget = Text("Please Add to your pics");
         } else {
           returnWidget = ListView.builder(
@@ -232,7 +232,7 @@ class _Controller {
         }
         break;
       case 2:
-        if (_state.vault.quotes == null) {
+        if (_state.vault.quotes == null || _state.vault.quotes.length == 0) {
           returnWidget = Text("Please Add to your quotes");
         } else {
           returnWidget = ListView.builder(
@@ -247,7 +247,7 @@ class _Controller {
         }
         break;
       case 3:
-        if (_state.vault.songs == null) {
+        if (_state.vault.songs == null || _state.vault.songs.length == 0) {
           returnWidget = Text("Please Add to your songs");
         } else {
           returnWidget = ListView.builder(
@@ -261,7 +261,7 @@ class _Controller {
         }
         break;
       case 4:
-        if (_state.vault.stories == null) {
+        if (_state.vault.stories == null || _state.vault.stories.length == 0) {
           returnWidget = Text("Please Add to your stories");
         } else {
           returnWidget = ListView.builder(
@@ -276,7 +276,7 @@ class _Controller {
         }
         break;
       case 5:
-        if (_state.vault.videos == null) {
+        if (_state.vault.videos == null || _state.vault.videos.length == 0) {
           returnWidget = Text("Please Add to your videos");
         } else {
           returnWidget = ListView.builder(
