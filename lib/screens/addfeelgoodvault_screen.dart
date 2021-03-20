@@ -60,7 +60,7 @@ class _AddFeelGoodVault extends State<AddFeelGoodVault> {
 class _Controller {
   _AddFeelGoodVault _state;
   _Controller(this._state);
-  String name, quote, song, story, video;
+  String name, quote, song, story, video, newValue;
 
   Widget getForm(int view) {
     switch (view) {
@@ -169,18 +169,40 @@ class _Controller {
       case 3:
         return Form(
           key: _state.formKey3,
-          child: Container(
-            width: MediaQuery.of(_state.context).size.width,
-            padding: EdgeInsets.all(5),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: "Song URL",
+          child: Column(
+            children: [
+              Container(
+                width: MediaQuery.of(_state.context).size.width,
+                padding: EdgeInsets.all(5),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Song URL",
+                  ),
+                  autocorrect: true,
+                  maxLines: 1,
+                  validator: validateSong,
+                  onSaved: saveSong,
+                ),
               ),
-              autocorrect: true,
-              maxLines: 1,
-              validator: validateSong,
-              onSaved: saveSong,
-            ),
+              Container(
+                width: MediaQuery.of(_state.context).size.width,
+                padding: EdgeInsets.all(5),
+                child: DropdownButton(
+                  items: <String>["Happy", "Energetic", "Peaceful"]
+                      .map((String value) {
+                    return DropdownMenuItem(
+                        child: new Text(value), value: value);
+                  }).toList(),
+                  value: newValue,
+                  hint: Text("Category"),
+                  onChanged: (String changedValue) {
+                    _state.setState(() {
+                      newValue = changedValue;
+                    });
+                  },
+                ),
+              ),
+            ],
           ),
         );
         break;
@@ -244,6 +266,7 @@ class _Controller {
 
   void saveStory(String s) {
     story = s;
+    newValue;
   }
 
   void saveVideo(String s) {
@@ -276,6 +299,9 @@ class _Controller {
     if (s.isEmpty) {
       return "Please input a quote";
     }
+    if (newValue.isEmpty) {
+      return "Value hasn't been selected";
+    }
     return null;
   }
 
@@ -300,10 +326,10 @@ class _Controller {
         uploadSong();
         break;
       case 4:
-        uploadVideo();
+        uploadStory();
         break;
       case 5:
-        uploadStory();
+        uploadVideo();
         break;
     }
   }
@@ -338,8 +364,8 @@ class _Controller {
       await FirebaseController.addPicToVault(_state.vault.docId, p);
 
       MyDialog.circularProgressEnd(_state.context);
-      Navigator.pop(_state.context);  //pop form screen
-      Navigator.pop(_state.context);  //pop old AlertDialog
+      Navigator.pop(_state.context); //pop form screen
+      Navigator.pop(_state.context); //pop old AlertDialog
       MyDialog.info(
           context: _state.context,
           title: "Add Pic Complete",
@@ -380,19 +406,31 @@ class _Controller {
     }
   }
 
-  void uploadSong() async {}
-
-  void uploadVideo() async {}
-
-  void uploadStory() async {
-        if (!_state.formKey5.currentState.validate()) {
+  void uploadSong() async {
+    if (!_state.formKey3.currentState.validate()) {
       return;
     }
-    _state.formKey5.currentState.save();
+
+    _state.formKey3.currentState.save();
     MyDialog.circularProgressStart(_state.context);
 
-    print("start saving quote");
-    print(quote);
+    MyDialog.circularProgressEnd(_state.context);
+    try {} catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Add Song Error",
+          content: e.toString());
+    }
+  }
+
+  void uploadStory() async {
+    if (!_state.formKey4.currentState.validate()) {
+      return;
+    }
+    _state.formKey4.currentState.save();
+    MyDialog.circularProgressStart(_state.context);
+
     try {
       await FirebaseController.addStory(story, _state.user);
       MyDialog.circularProgressEnd(_state.context);
@@ -400,8 +438,8 @@ class _Controller {
       Navigator.pop(_state.context);
       MyDialog.info(
           context: _state.context,
-          title: "Add Quote Complete",
-          content: "Quote added successfully");
+          title: "Add Story Complete",
+          content: "Story added successfully");
     } catch (e) {
       MyDialog.circularProgressEnd(_state.context);
       MyDialog.info(
@@ -410,6 +448,8 @@ class _Controller {
           content: e.toString());
     }
   }
+
+  void uploadVideo() async {}
 
   void getPicture(String src) async {
     try {

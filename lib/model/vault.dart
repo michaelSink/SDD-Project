@@ -105,21 +105,27 @@ class Picture {
 class Songs {
   static const NAME = "name";
   static const IMAGE_FOLDER = "Songs";
+  static const CATEGORY = "category";
 
   String name;
+  String category;
 
   Songs({
     this.name,
+    this.category,
   }) {}
 }
 
 class Videos {
   static const NAME = "name";
   static const IMAGE_FOLDER = "Videos";
+  static const CATEGORY = "category";
 
   String name;
+  String category;
 
   Videos({
     this.name,
+    this.category,
   }) {}
 }

@@ -270,6 +270,31 @@ class FirebaseController {
     return;
   }
 
+  static Future<void> addStory(String s, String email) async {
+    print("Start addStory");
+    QuerySnapshot snapshot = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .where(Vault.OWNER, isEqualTo: email)
+        .getDocuments();
+    List<dynamic> output = [];
+    if (snapshot != null && snapshot.documents.length != 0) {
+      output = snapshot.documents[0].data[Vault.STORIES];
+      print(output);
+      output.add(s);
+      await Firestore.instance
+          .collection(Vault.COLLECTION)
+          .document(snapshot.documents[0].documentID)
+          .updateData({Vault.STORIES: output});
+    } else {
+      output.add(s);
+       await Firestore.instance
+          .collection(Vault.COLLECTION)
+          .document(snapshot.documents[0].documentID)
+          .updateData({Vault.STORIES: output});
+    }
+    return;
+  }
+
   //3 functions for adding pic to storage, then adding information about pic to firestore, then firestore doc to vault array
   static Future<Map<String, String>> addPicToStorage(
       {@required File image, @required String email}) async {

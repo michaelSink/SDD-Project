@@ -112,10 +112,10 @@ class _FeelGoodVault extends State<FeelGoodVault> {
                     margin: EdgeInsets.all(15),
                     child: ListTile(
                       leading: Icon(Icons.video_collection_outlined),
-                      title: Text("Videos"),
+                      title: Text("Stories"),
                       onTap: () => setState(() {
                         viewSelected = true;
-                        vaultKey = "videos";
+                        vaultKey = "stories";
                         view = 4;
                       }),
                     ),
@@ -125,10 +125,10 @@ class _FeelGoodVault extends State<FeelGoodVault> {
                     margin: EdgeInsets.all(15),
                     child: ListTile(
                       leading: Icon(Icons.book_outlined),
-                      title: Text("Stories"),
+                      title: Text("Videos"),
                       onTap: () => setState(() {
                         viewSelected = true;
-                        vaultKey = "stories";
+                        vaultKey = "videos";
                         view = 5;
                       }),
                     ),
@@ -227,6 +227,7 @@ class _Controller {
   }
 
   void getForm(view) async {
+    print(view);
     await Navigator.pushNamed(_state.context, AddFeelGoodVault.routeName, arguments: {'user': _state.user, 'view': view, 'vault': _state.vault});
      _state.vault = await FirebaseController.getVault(_state.user);
     _state.setState(() {});
