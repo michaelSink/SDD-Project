@@ -10,14 +10,12 @@ class Vault {
 
   String owner;
   String docId;
-  List<dynamic> quotes;
   List<dynamic> songs;
   List<dynamic> stories;
   List<dynamic> videos;
   List<Picture> pictures;
+  List<dynamic> quotes;
 
-  //for later
-  List<String> _quotes;
   List<Songs> _songs;
   List<String> _stories;
   List<Videos> _videos;
