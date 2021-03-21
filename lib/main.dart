@@ -9,6 +9,8 @@ import 'package:SDD_Project/screens/diagnosis_screen.dart';
 import 'package:SDD_Project/screens/prescriptionDetails_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:SDD_Project/screens/signup_screen.dart';
+import 'package:SDD_Project/screens/nativeContacts_screen.dart';
+import 'package:SDD_Project/screens/editDiagnosis_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'screens/adddiagnosis_screen.dart';
@@ -45,6 +47,8 @@ class AppRoutes extends StatelessWidget{
         AddDiagnosis.routeName: (context) => AddDiagnosis(),
         FamilyHistory.routeName: (context) => FamilyHistory(),
         AddFamilyHistory.routeName: (context) => AddFamilyHistory(),
+        NativeContacts.routeName: (context) => NativeContacts(),
+        EditDiagnosis.routeName: (context) => EditDiagnosis(),
       }
 
     );
