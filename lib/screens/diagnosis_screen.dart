@@ -99,9 +99,10 @@ class _DiagnosisScreenState extends State<DiagnosisScreen>{
                     ),
                     children: [
                       TextSpan(text: "Previous Treatments: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                      diagnoses[index].treatments.length == 0 ? 
-                        TextSpan(text: "${diagnoses[index].treatments.toString().replaceAll('[', '').replaceAll(']', '')}")
-                        : TextSpan(text: "None"),
+                      diagnoses[index].treatments[0].length == 0 ? 
+                        TextSpan(text: "None")
+                        :
+                        TextSpan(text: "${diagnoses[index].treatments.toString().replaceAll('[', '').replaceAll(']', '')}"),
                     ]
                   ),
                 ),
