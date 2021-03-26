@@ -1,5 +1,6 @@
 import 'package:SDD_Project/screens/addFamilyHistory_screen.dart';
 import 'package:SDD_Project/screens/addHotline_screen.dart';
+import 'package:SDD_Project/screens/addLocation_screen.dart';
 import 'package:SDD_Project/screens/calender_screen.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/editprescription_screen.dart';
@@ -8,6 +9,7 @@ import 'package:SDD_Project/screens/home_screen.dart';
 import 'package:SDD_Project/screens/hotline_screen.dart';
 import 'package:SDD_Project/screens/diagnosis_screen.dart';
 import 'package:SDD_Project/screens/journal_screen.dart';
+import 'package:SDD_Project/screens/location_screen.dart';
 import 'package:SDD_Project/screens/prescriptionDetails_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:SDD_Project/screens/signup_screen.dart';
@@ -58,7 +60,8 @@ class AppRoutes extends StatelessWidget{
         AddEventPageScreen.routeName: (context) => AddEventPageScreen(),
         AboutPageScreen.routeName: (context) => AboutPageScreen(),
         CalenderScreen.routeName: (context) => CalenderScreen(),
-
+        LocationScreen.routeName: (context) => LocationScreen(),
+        AddLocationScreen.routeName: (context) => AddLocationScreen(),
 
       }
 
