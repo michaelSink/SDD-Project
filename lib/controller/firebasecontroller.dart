@@ -96,7 +96,23 @@ class FirebaseController {
     return results;
   }
 
+
+  static Future<void> deleteDiagnosis(String docId) async{
+    await Firestore.instance
+          .collection(Diagnosis.COLLECTION)
+          .document(docId)
+          .delete();
+  }
+
+  static Future<void> updateDiagnosis(Diagnosis diagnosis) async{
+    await Firestore.instance
+          .collection(Diagnosis.COLLECTION)
+          .document(diagnosis.docId)
+          .setData(diagnosis.serialize());
+  }
+
   static Future<String> addFamilyHistory(MedicalHistory history) async {
+
     DocumentReference ref = await Firestore.instance
         .collection(MedicalHistory.COLLECTION)
         .add(history.serialize());

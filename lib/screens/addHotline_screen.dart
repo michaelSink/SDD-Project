@@ -18,6 +18,8 @@ class _AddHotlineState extends State<AddHotline>{
   
   List<Hotline> hotlines;
   FirebaseUser user;
+  String name;
+  String number;
   _Controller con;
   var formKey = GlobalKey<FormState>();
 
@@ -33,6 +35,8 @@ class _AddHotlineState extends State<AddHotline>{
     Map arg = ModalRoute.of(context).settings.arguments;
     hotlines ??= arg['hotlines'];
     user ??= arg['user'];
+    name ??= arg['name'];
+    number ??= arg['number'];
 
     return Scaffold(
       appBar: AppBar(
@@ -51,6 +55,7 @@ class _AddHotlineState extends State<AddHotline>{
                 decoration: InputDecoration(
                   hintText: 'Name',
                 ),
+                initialValue: name != null ? name : "",
                 autocorrect: false,
                 validator: con.validatorName,
                 onSaved: con.onSavedName,
@@ -87,6 +92,7 @@ class _AddHotlineState extends State<AddHotline>{
                 decoration: InputDecoration(
                   hintText: 'Phone Number',
                 ),
+                initialValue: number != null ? number.replaceFirst("(", "").replaceFirst(") ", "-") : "",
                 autocorrect: false,
                 validator: con.validatorPhoneNumber,
                 onSaved: con.onSavedPhoneNumber,

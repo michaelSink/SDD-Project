@@ -11,6 +11,8 @@ import 'package:SDD_Project/screens/journal_screen.dart';
 import 'package:SDD_Project/screens/prescriptionDetails_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:SDD_Project/screens/signup_screen.dart';
+import 'package:SDD_Project/screens/nativeContacts_screen.dart';
+import 'package:SDD_Project/screens/editDiagnosis_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
 import 'screens/aboutpage_screen.dart';
@@ -49,11 +51,14 @@ class AppRoutes extends StatelessWidget{
         AddDiagnosis.routeName: (context) => AddDiagnosis(),
         FamilyHistory.routeName: (context) => FamilyHistory(),
         AddFamilyHistory.routeName: (context) => AddFamilyHistory(),
+        NativeContacts.routeName: (context) => NativeContacts(),
+        EditDiagnosis.routeName: (context) => EditDiagnosis(),
         FeelGoodVault.routeName: (context) => FeelGoodVault(),
         JournalScreen.routeName: (context) => JournalScreen(),
         AddEventPageScreen.routeName: (context) => AddEventPageScreen(),
         AboutPageScreen.routeName: (context) => AboutPageScreen(),
         CalenderScreen.routeName: (context) => CalenderScreen(),
+
 
       }
 
