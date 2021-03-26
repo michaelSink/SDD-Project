@@ -2,7 +2,10 @@ import 'package:SDD_Project/model/hotline.dart';
 import 'package:SDD_Project/screens/addHotline_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:contacts_service/contacts_service.dart'; 
+import 'package:SDD_Project/screens/nativeContacts_screen.dart';
 
 class HotlineScreen extends StatefulWidget{
 
@@ -20,10 +23,8 @@ class _HotlineState extends State<HotlineScreen>{
   _Controller con;
   List<Hotline> hotlines;
   FirebaseUser user;
-  int defaultIndex = 0;
 
   Future<void> _showMyDialog(String number, String name) async {
-    print(number);
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -74,6 +75,12 @@ class _HotlineState extends State<HotlineScreen>{
     return Scaffold(
       appBar: AppBar(
         title: Text('Emergency Hotlines'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.person_add),
+            onPressed: con.showContacts,
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: hotlines.length + 6,
@@ -183,6 +190,19 @@ class _HotlineState extends State<HotlineScreen>{
 
 }
 
+  Future<PermissionStatus> _getPermission() async {
+    final PermissionStatus permission = await Permission.contacts.status;
+    if (permission != PermissionStatus.granted &&
+        permission != PermissionStatus.denied) {
+      final Map<Permission, PermissionStatus> permissionStatus =
+          await [Permission.contacts].request();
+      return permissionStatus[Permission.contacts] ??
+          PermissionStatus.undetermined;
+    } else {
+      return permission;
+    }
+  }
+
 class _Controller{
   _HotlineState _state;
   _Controller(this._state);
@@ -191,6 +211,32 @@ class _Controller{
     await Navigator.pushNamed(_state.context, AddHotline.routeName, 
             arguments: {'hotlines' : _state.hotlines, 'user' : _state.user});
     _state.render((){});
+  }
+
+  Future<PermissionStatus> _getPermission() async {
+    final PermissionStatus permission = await Permission.contacts.status;
+    if (permission != PermissionStatus.granted &&
+        permission != PermissionStatus.denied) {
+      final Map<Permission, PermissionStatus> permissionStatus =
+          await [Permission.contacts].request();
+      return permissionStatus[Permission.contacts] ??
+          PermissionStatus.undetermined;
+    } else {
+      return permission;
+    }
+  }
+
+  void showContacts() async{
+
+    final PermissionStatus permissionStatus = await _getPermission();
+
+    if(permissionStatus == PermissionStatus.granted){
+
+      Iterable<Contact> contacts = await ContactsService.getContacts();
+      await Navigator.pushNamed(_state.context, NativeContacts.routeName,
+              arguments: {"contacts": contacts, "user" : _state.user, "hotlines" : _state.hotlines});
+    }
+    
   }
 
 }

@@ -1,13 +1,15 @@
+import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/diagnosis.dart';
 import 'package:SDD_Project/screens/adddiagnosis_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:SDD_Project/screens/editDiagnosis_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'views/mydialog.dart';
 
 class DiagnosisScreen extends StatefulWidget{
 
-  static const routeName = './signIn/homeScreen/diagnosis';
+  static const routeName = './signIn/homeScreen/diagnosis/';
 
   @override
   State<StatefulWidget> createState() {
@@ -20,6 +22,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen>{
   _Controller con;
   FirebaseUser user;
   List<Diagnosis> diagnoses;
+  int selectedIndex = -1;
 
   @override
   void initState() {
@@ -38,85 +41,86 @@ class _DiagnosisScreenState extends State<DiagnosisScreen>{
     return Scaffold(
       appBar: AppBar(
         title: Text('Diagnosis'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: selectedIndex != -1 ? con.editDiagnosis : null,
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: selectedIndex != -1 ? con.deleteDiagnosis : null,
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: diagnoses.length,
-        itemBuilder: (BuildContext buildContext, int index) => Container(
-          margin: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(width: 3, color: Colors.black),
-              bottom: BorderSide(width: 3, color: Colors.black),
-              left: BorderSide(width: 3, color: Colors.black),
-              right: BorderSide(width: 3, color: Colors.black),
-            ),
-          ),
+        itemBuilder: (BuildContext buildContext, int index) => InkWell(
+          onLongPress: () {
+            render((){
+              selectedIndex = index;
+            });
+          },
+          onTap: (){
+            render((){
+              selectedIndex = -1;
+            });
+          },
           child: Card(
+            color: selectedIndex == index ? Colors.blue[200] : Colors.white,
+            margin: EdgeInsets.all(8),
+            clipBehavior: Clip.antiAlias,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "${diagnoses[index].diagnosedFor}",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ListTile(
+                  leading: Icon(Icons.note),
+                  title: Text(diagnoses[index].diagnosedFor),
+                  subtitle: Text("By: " + diagnoses[index].diagnosedBy + " at " + diagnoses[index].diagnosedAt),
                 ),
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
+                Padding(
+                  padding: EdgeInsets.all(8),
+                  child: ExpansionTile(
+                    title: Text("More Info"),
                     children: [
-                      TextSpan(text: "Diagnosed On: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(text: "${diagnoses[index].diagnosedOn.year}-${diagnoses[index].diagnosedOn.month.toString().padLeft(2, '0')}-${diagnoses[index].diagnosedOn.day.toString().padLeft(2, '0')}"),
-                    ]
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                    children: [
-                      TextSpan(text: "Diagnosed By: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(text: "${diagnoses[index].diagnosedBy}"),
-                    ]
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                    children: [
-                      TextSpan(text: "Diagnosed At: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(text: "${diagnoses[index].diagnosedAt}"),
-                    ]
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                    children: [
-                      TextSpan(text: "Previous Treatments: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                      diagnoses[index].treatments.length == 0 ? 
-                        TextSpan(text: "${diagnoses[index].treatments.toString().replaceAll('[', '').replaceAll(']', '')}")
-                        : TextSpan(text: "None"),
-                    ]
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                    children: [
-                      TextSpan(text: "Comments: ", style: TextStyle(fontWeight: FontWeight.bold)),
-                      !diagnoses[index].additionalComments.trim().isEmpty ?
-                      TextSpan(text: "${diagnoses[index].additionalComments}")
-                      :
-                      TextSpan(text: "None")
-                    ]
+                          RichText(
+                            text: TextSpan(
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                              children: [
+                                TextSpan(text: "Diagnosed At: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                TextSpan(text: "${diagnoses[index].diagnosedAt}"),
+                              ]
+                            ),
+                          ),
+                        RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                            children: [
+                              TextSpan(text: "Previous Treatments: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                              diagnoses[index].treatments[0].length == 0 ? 
+                                TextSpan(text: "None")
+                                :
+                                TextSpan(text: "${diagnoses[index].treatments.toString().replaceAll('[', '').replaceAll(']', '')}"),
+                            ]
+                          ),
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                            children: [
+                              TextSpan(text: "Comments: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                              diagnoses[index].additionalComments.trim().isEmpty ?
+                                TextSpan(text: "None")
+                              :
+                                TextSpan(text: "${diagnoses[index].additionalComments}")
+                            ]
+                          ),
+                        )
+                    ],
                   ),
                 ),
               ],
@@ -125,7 +129,7 @@ class _DiagnosisScreenState extends State<DiagnosisScreen>{
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: con.addMedicalHistoryScreen,
+        onPressed: con.addDiagnosis,
         child: Icon(Icons.add),
       ),
     );
@@ -136,7 +140,7 @@ class _Controller{
   _DiagnosisScreenState _state;
   _Controller(this._state);
 
-  void addMedicalHistoryScreen() async{
+  void addDiagnosis() async{
     try{
       await Navigator.pushNamed(_state.context, AddDiagnosis.routeName,
             arguments: {'user': _state.user, 'diagnoses' : _state.diagnoses});
@@ -149,6 +153,25 @@ class _Controller{
         title: 'Error',
       );
     }
+  }
+
+  void editDiagnosis() async{
+        await Navigator.pushNamed(_state.context, EditDiagnosis.routeName,
+          arguments: {'diagnosis' : _state.diagnoses[_state.selectedIndex], "user" : _state.user});
+    _state.render((){});
+  }
+
+  void deleteDiagnosis() async{    
+    await FirebaseController.deleteDiagnosis(_state.diagnoses[_state.selectedIndex].docId);
+    _state.diagnoses.removeAt(_state.selectedIndex);
+    _state.render((){
+      _state.selectedIndex = -1;
+    });
+    MyDialog.info(
+      content: "Diagnosis Sucessfully Deleted!",
+      context: _state.context,
+      title: "Success",
+    );
   }
 
 }
