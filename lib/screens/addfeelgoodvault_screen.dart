@@ -218,7 +218,7 @@ class _Controller {
                 hintText: "Story",
               ),
               autocorrect: true,
-              maxLines: 10,
+              maxLines: 30,
               validator: validateStory,
               onSaved: saveStory,
             ),
@@ -341,7 +341,7 @@ class _Controller {
 
   void save() {
     //this is where the firebase upload is
-    print(_state.view);
+    //print(_state.view);
     switch (_state.view) {
       case 1:
         uploadPic();

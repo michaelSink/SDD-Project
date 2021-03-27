@@ -5,6 +5,8 @@ import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/screens/addfeelgoodvault_screen.dart';
 import 'package:flutter/material.dart';
 
+import 'views/mydialog.dart';
+
 class FeelGoodVault extends StatefulWidget {
   static const routeName = "/homescreen/feelgoodvault";
 
@@ -22,6 +24,7 @@ class _FeelGoodVault extends State<FeelGoodVault> {
   Vault vault;
   String vaultKey;
   File image;
+  int indexToDelete;
 
   @override
   void initState() {
@@ -47,6 +50,7 @@ class _FeelGoodVault extends State<FeelGoodVault> {
       setState(() {
         view = 0;
         viewSelected = false;
+        indexToDelete = null;
       });
     }
     return result;
@@ -63,6 +67,15 @@ class _FeelGoodVault extends State<FeelGoodVault> {
       child: Scaffold(
         appBar: AppBar(
           title: Text("Feel Good Vault"),
+          actions: <Widget>[
+            view != 0
+                ? IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      con.delete(view);
+                    })
+                : Container()
+          ],
         ),
         body: viewSelected == false
             ? Column(
@@ -215,7 +228,8 @@ class _Controller {
 
     switch (view) {
       case 1:
-        if (_state.vault.pictures == null || _state.vault.pictures.length == 0) {
+        if (_state.vault.pictures == null ||
+            _state.vault.pictures.length == 0) {
           returnWidget = Text("Please Add to your pics");
         } else {
           returnWidget = ListView.builder(
@@ -225,8 +239,18 @@ class _Controller {
                   margin: EdgeInsets.all(10),
                   child: ListTile(
                     title: Image.network(_state.vault.pictures[index].photoURL),
-                    subtitle: Center(child: Text(_state.vault.pictures[index].name)),
-                  ),               
+                    subtitle:
+                        Center(child: Text(_state.vault.pictures[index].name)),
+                    onLongPress: () {
+                      _state.setState(() {
+                        _state.indexToDelete != index
+                            ? _state.indexToDelete = index
+                            : _state.indexToDelete = null;
+                      });
+                    },
+                    selected: _state.indexToDelete == index ? true : false,
+                    selectedTileColor: Colors.blue[100],
+                  ),
                 );
               });
         }
@@ -239,9 +263,18 @@ class _Controller {
               itemCount: _state.vault.quotes.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                title: Text(_state.vault.quotes[index]),
-                contentPadding: EdgeInsets.all(5),
-                horizontalTitleGap: 2.0,
+                  title: Text(_state.vault.quotes[index]),
+                  contentPadding: EdgeInsets.all(5),
+                  horizontalTitleGap: 2.0,
+                  onLongPress: () {
+                    _state.setState(() {
+                      _state.indexToDelete != index
+                          ? _state.indexToDelete = index
+                          : _state.indexToDelete = null;
+                    });
+                  },
+                  selected: _state.indexToDelete == index ? true : false,
+                  selectedTileColor: Colors.blue[100],
                 );
               });
         }
@@ -256,6 +289,15 @@ class _Controller {
                 return ListTile(
                   title: Text(_state.vault.songs[index].name),
                   subtitle: Text(_state.vault.songs[index].category),
+                  onLongPress: () {
+                    _state.setState(() {
+                      _state.indexToDelete != index
+                          ? _state.indexToDelete = index
+                          : _state.indexToDelete = null;
+                    });
+                  },
+                  selected: _state.indexToDelete == index ? true : false,
+                  selectedTileColor: Colors.blue[100],
                 );
               });
         }
@@ -267,10 +309,30 @@ class _Controller {
           returnWidget = ListView.builder(
               itemCount: _state.vault.stories.length,
               itemBuilder: (BuildContext context, int index) {
-                return Card(
-                  child: Text(_state.vault.stories[index], style: TextStyle(fontSize: 18),),
-                  margin: EdgeInsets.all(5),
-                  elevation: 2,
+                return ListTile(
+                  title: Text("Story #" + (index + 1).toString()),
+                  subtitle: Text(
+                      _state.vault.stories[index].substring(0, 50) + "..."),
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: SingleChildScrollView(
+                                child: Text(_state.vault.stories[index])),
+                          );
+                        });
+                  },
+                  //add index to list
+                  onLongPress: () {
+                    _state.setState(() {
+                      _state.indexToDelete != index
+                          ? _state.indexToDelete = index
+                          : _state.indexToDelete = null;
+                    });
+                  },
+                  selected: _state.indexToDelete == index ? true : false,
+                  selectedTileColor: Colors.blue[100],
                 );
               });
         }
@@ -285,6 +347,15 @@ class _Controller {
                 return ListTile(
                   title: Text(_state.vault.videos[index].name),
                   subtitle: Text(_state.vault.videos[index].category),
+                  onLongPress: () {
+                    _state.setState(() {
+                      _state.indexToDelete != index
+                          ? _state.indexToDelete = index
+                          : _state.indexToDelete = null;
+                    });
+                  },
+                  selected: _state.indexToDelete == index ? true : false,
+                  selectedTileColor: Colors.blue[100],
                 );
               });
         }
@@ -300,5 +371,129 @@ class _Controller {
         arguments: {'user': _state.user, 'view': view, 'vault': _state.vault});
     _state.vault = await FirebaseController.getVault(_state.user);
     _state.setState(() {});
+  }
+
+  void delete(view) async {
+    if (_state.indexToDelete == null) {
+      print("No item selected to delete");
+      return;
+    }
+    switch (_state.view) {
+      case 1:
+        deletePic();
+        break;
+      case 2:
+        deleteQuote();
+        break;
+      case 3:
+        deleteSong();
+        break;
+      case 4:
+        deleteStory();
+        break;
+      case 5:
+        deleteVideo();
+        break;
+    }
+  }
+
+  void deletePic() async {
+    print("delete pic");
+    MyDialog.circularProgressStart(_state.context);
+    try {
+      //print(_state.vault.pictures[_state.indexToDelete].docId);
+      //print(_state.vault.docId);
+      await FirebaseController.deletePicture(
+          _state.vault.pictures[_state.indexToDelete], _state.vault.docId);
+      _state.vault.pictures.removeAt(_state.indexToDelete);
+      MyDialog.circularProgressEnd(_state.context);
+      _state.render(() {
+        _state.indexToDelete = null;
+      });
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Delete Picture Error",
+          content: e.toString());
+    }
+  }
+
+  void deleteQuote() async {
+    print("delete quote");
+    MyDialog.circularProgressStart(_state.context);
+    try {
+      await FirebaseController.deleteQuote(_state.user, _state.indexToDelete);
+      _state.vault.quotes.removeAt(_state.indexToDelete);
+      MyDialog.circularProgressEnd(_state.context);
+      _state.render(() {
+        _state.indexToDelete = null;
+      });
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Delete Quote Error",
+          content: e.toString());
+    }
+  }
+
+  void deleteSong() async {
+    print("delete song");
+    MyDialog.circularProgressStart(_state.context);
+    try {
+      await FirebaseController.deleteSong(
+          _state.vault.songs[_state.indexToDelete], _state.vault.docId);
+      _state.vault.songs.removeAt(_state.indexToDelete);
+      MyDialog.circularProgressEnd(_state.context);
+      _state.render(() {
+        _state.indexToDelete = null;
+      });
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Delete Picture Error",
+          content: e.toString());
+    }
+  }
+
+  void deleteStory() async {
+    print("delete story at " + _state.indexToDelete.toString());
+    MyDialog.circularProgressStart(_state.context);
+    try {
+      await FirebaseController.deleteStory(_state.user, _state.indexToDelete);
+      _state.vault.stories.removeAt(_state.indexToDelete);
+      MyDialog.circularProgressEnd(_state.context);
+      _state.render(() {
+        _state.indexToDelete = null;
+      });
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Delete Story Error",
+          content: e.toString());
+    }
+  }
+
+  void deleteVideo() async {
+    print("delete video");
+    MyDialog.circularProgressStart(_state.context);
+    try {
+      await FirebaseController.deleteVideo(
+          _state.vault.videos[_state.indexToDelete], _state.vault.docId);
+      _state.vault.videos.removeAt(_state.indexToDelete);
+      MyDialog.circularProgressEnd(_state.context);
+      _state.render(() {
+        _state.indexToDelete = null;
+      });
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Delete Video Error",
+          content: e.toString());
+    }
   }
 }

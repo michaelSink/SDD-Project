@@ -101,23 +101,21 @@ class FirebaseController {
     return results;
   }
 
-
-  static Future<void> deleteDiagnosis(String docId) async{
+  static Future<void> deleteDiagnosis(String docId) async {
     await Firestore.instance
-          .collection(Diagnosis.COLLECTION)
-          .document(docId)
-          .delete();
+        .collection(Diagnosis.COLLECTION)
+        .document(docId)
+        .delete();
   }
 
-  static Future<void> updateDiagnosis(Diagnosis diagnosis) async{
+  static Future<void> updateDiagnosis(Diagnosis diagnosis) async {
     await Firestore.instance
-          .collection(Diagnosis.COLLECTION)
-          .document(diagnosis.docId)
-          .setData(diagnosis.serialize());
+        .collection(Diagnosis.COLLECTION)
+        .document(diagnosis.docId)
+        .setData(diagnosis.serialize());
   }
 
   static Future<String> addFamilyHistory(MedicalHistory history) async {
-
     DocumentReference ref = await Firestore.instance
         .collection(MedicalHistory.COLLECTION)
         .add(history.serialize());
@@ -324,7 +322,7 @@ class FirebaseController {
     List<dynamic> output = [];
     if (snapshot != null && snapshot.documents.length != 0) {
       output = snapshot.documents[0].data[Vault.STORIES];
-      print(output);
+      //print(output);
       output.add(s);
       await Firestore.instance
           .collection(Vault.COLLECTION)
@@ -389,5 +387,91 @@ class FirebaseController {
     DocumentReference doc = await ref.add(v.serialize());
     print("Inside create vault");
     return doc.documentID;
+  }
+
+  static Future<List<Contacts>> searchContacts(
+      String email, String searchKey) async {
+    QuerySnapshot snapshot = await Firestore.instance
+        .collection(Contacts.COLLECTION)
+        .where(Contacts.OWNER, isEqualTo: email)
+        .where(Contacts.FIRSTNAME, isEqualTo: searchKey)
+        .getDocuments();
+
+
+    var result = <Contacts>[];
+    if(snapshot != null && snapshot.documents.length != 0){
+      for(var doc in snapshot.documents){
+        result.add(Contacts.deserialize(doc.data, doc.documentID));
+      }
+    }
+    return result;
+  }
+
+  static Future deleteStory(String email, int index) async {
+    QuerySnapshot snapshot = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .where(Vault.OWNER, isEqualTo: email)
+        .getDocuments();
+    List<dynamic> output = [];
+    //validate must have passed that there is a story to delete
+    if (snapshot != null && snapshot.documents.length != 0) {
+        output = snapshot.documents[0].data[Vault.STORIES];
+    }
+    output.removeAt(index);
+    await Firestore.instance
+          .collection(Vault.COLLECTION)
+          .document(snapshot.documents[0].documentID)
+          .updateData({Vault.STORIES: output});
+    return;
+  }
+
+   static Future deleteQuote(String email, int index) async {
+    QuerySnapshot snapshot = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .where(Vault.OWNER, isEqualTo: email)
+        .getDocuments();
+    List<dynamic> output = [];
+    //validate must have passed that there is a story to delete
+    if (snapshot != null && snapshot.documents.length != 0) {
+        output = snapshot.documents[0].data[Vault.QUOTES];
+    }
+    output.removeAt(index);
+    await Firestore.instance
+          .collection(Vault.COLLECTION)
+          .document(snapshot.documents[0].documentID)
+          .updateData({Vault.QUOTES: output});
+    return;
+  }
+
+  static Future deletePicture(Picture pic, String vaultId) async {
+    await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.PICTURES)
+        .document(pic.docId)
+        .delete();
+    
+    await FirebaseStorage.instance.ref().child(pic.photoPath).delete();
+    return;
+  }
+
+   static Future deleteSong(Songs s, String vaultId) async {
+    await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.SONGS)
+        .document(s.docId)
+        .delete();
+    return;
+  }
+
+   static Future deleteVideo(Videos v, String vaultId) async {
+    await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.VIDEOS)
+        .document(v.docId)
+        .delete();
+    return;
   }
 }
