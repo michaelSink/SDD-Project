@@ -18,6 +18,7 @@ class _ContactScreen extends State<ContactScreen> {
   List<Contacts> contacts;
   _Controller con;
   var formKey = GlobalKey<FormState>();
+  var searchKey = GlobalKey<FormState>();
   String user;
   List<int> selectedIndex = [];
   Map<int, String> contactsToDelete;
@@ -174,9 +175,27 @@ class _ContactScreen extends State<ContactScreen> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Text("People I Know"),
+        title: Text("Contacts"),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.delete), onPressed: con.delete)
+          Container(
+            padding: EdgeInsets.all(10),
+            width: 150.0,
+            child: Form(
+              key: searchKey,
+              child: TextFormField(
+                decoration: InputDecoration(
+                  hintText: "Search First Name",
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+                autocorrect: false,
+                onSaved: con.saveSearchKey,
+              ),
+            ),
+          ),
+          selectedIndex.length == 0
+              ? IconButton(icon: Icon(Icons.search), onPressed: con.search)
+              : IconButton(icon: Icon(Icons.delete), onPressed: con.delete),
         ],
       ),
       body: contacts.length == 0
@@ -245,7 +264,7 @@ class _ContactScreen extends State<ContactScreen> {
                       selectedIndex.contains(index)
                           ? selectedIndex.remove(index)
                           : selectedIndex.add(index);
-                      render((){});
+                      render(() {});
                     },
                   ),
                 ),
@@ -266,7 +285,7 @@ class _ContactScreen extends State<ContactScreen> {
 class _Controller {
   _ContactScreen _state;
   _Controller(this._state);
-  String firstName, lastName, phoneNum, relation;
+  String firstName, lastName, phoneNum, relation, searchKey;
 
   //validators
   String validateFirstName(String s) {
@@ -302,7 +321,7 @@ class _Controller {
   }
 
   //save functions
-    //change input name to capitalize first letter
+  //change input name to capitalize first letter
   void saveFirstName(String s) {
     String first = s.substring(0, 1);
     String last = s.substring(1);
@@ -310,7 +329,8 @@ class _Controller {
     last = last.toLowerCase();
     firstName = first + last;
   }
-    //change input name to capitalize first letter
+
+  //change input name to capitalize first letter
   void saveLastName(String s) {
     String first = s.substring(0, 1);
     String last = s.substring(1);
@@ -331,6 +351,10 @@ class _Controller {
     //to keep all the phone #s consistent,
     //change (xxx)-xxx-xxxx; xxx-xxx-xxxx; xxx xxx xxxx to the format xxxxxxxxxx
     phoneNum = s;
+  }
+
+  void saveSearchKey(String s) {
+    searchKey = s;
   }
 
   //to add a new contact
@@ -354,7 +378,9 @@ class _Controller {
       //print("here"); debug
       MyDialog.circularProgressEnd(_state.context); //pop circular from add
       Navigator.pop(_state.context); //pop dialog box from form
-      _state.render(() {_state.contacts.add(c);});
+      _state.render(() {
+        _state.contacts.add(c);
+      });
       MyDialog.info(
           title: "Contact Added",
           context: _state.context,
@@ -377,14 +403,16 @@ class _Controller {
     }
     MyDialog.circularProgressStart(_state.context);
     try {
-
       for (int i = 0; i < _state.selectedIndex.length; i++) {
-        await FirebaseController.deleteContacts(_state.contacts.elementAt(_state.selectedIndex[i]));
+        await FirebaseController.deleteContacts(
+            _state.contacts.elementAt(_state.selectedIndex[i]));
         _state.contacts.removeAt(_state.selectedIndex[i]);
       }
-       
+
       MyDialog.circularProgressEnd(_state.context);
-      _state.render((){_state.selectedIndex = [];});
+      _state.render(() {
+        _state.selectedIndex = [];
+      });
       MyDialog.info(
           title: "Contact Deleted",
           context: _state.context,
@@ -397,5 +425,23 @@ class _Controller {
       MyDialog.circularProgressEnd(_state.context);
       return;
     }
+  }
+
+  void search() async {
+    _state.searchKey.currentState.save();
+    
+    List<Contacts> result;
+    if(searchKey == null || searchKey.trim().isEmpty){
+        result = await FirebaseController.getContacts(_state.user);
+    } else{
+      String first = searchKey.substring(0, 1);
+      String last = searchKey.substring(1);
+      first = first.toUpperCase();
+      last = last.toLowerCase();
+      searchKey = first + last;
+      result = await FirebaseController.searchContacts(_state.user, searchKey);
+    }
+
+    _state.render(() => _state.contacts = result);
   }
 }
