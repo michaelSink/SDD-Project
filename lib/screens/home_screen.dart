@@ -2,6 +2,7 @@ import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/contacts.dart';
 import 'package:SDD_Project/model/journal.dart';
 import 'package:SDD_Project/model/personalcare.dart';
+import 'package:SDD_Project/model/location.dart';
 import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/screens/calender_screen.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
@@ -11,6 +12,7 @@ import 'package:SDD_Project/model/hotline.dart';
 import 'package:SDD_Project/model/medicalHistory.dart';
 import 'package:SDD_Project/screens/diagnosis_screen.dart';
 import 'package:SDD_Project/screens/familyHistory_screen.dart';
+import 'package:SDD_Project/screens/location_screen.dart';
 import 'package:SDD_Project/screens/prescription_screen.dart';
 import 'package:SDD_Project/screens/questionhome_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
@@ -145,6 +147,13 @@ class _HomeState extends State<HomeScreen> {
                 onTap: con.calender,
               ),
             ),
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.house),
+                title: Text('Socail Settings'),
+                onTap: con.locationScreen,
+              ),
+            ),
           ],
         ),
       ),
@@ -169,6 +178,22 @@ class _Controller {
         context: _state.context,
         content: e.message ?? e.toString(),
         title: 'Error',
+      );
+    }
+  }
+
+  void locationScreen() async{
+    try{
+
+      List<Location> locations = await FirebaseController.getLocations(_state.user.uid);
+
+      await Navigator.pushNamed(_state.context, LocationScreen.routeName,
+                arguments: {'locations' : locations, 'user' : _state.user});
+    }catch(e){
+      MyDialog.info(
+        title: 'Error',
+        context: _state.context,
+        content: e.toString()
       );
     }
   }
