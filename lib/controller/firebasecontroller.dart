@@ -1,9 +1,8 @@
 import 'dart:io';
-
-import 'package:SDD_Project/model/SDD-Project.dart';
 import 'package:SDD_Project/model/diagnosis.dart';
 import 'package:SDD_Project/model/hotline.dart';
 import 'package:SDD_Project/model/medicalHistory.dart';
+import 'package:SDD_Project/model/personalcare.dart';
 import 'package:SDD_Project/model/vault.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -474,4 +473,35 @@ class FirebaseController {
         .delete();
     return;
   }
+
+  static Future<String> addPersonalCare(PersonalCare personalCare) async {
+    personalCare.updatedAt = DateTime.now();
+    DocumentReference ref = await Firestore.instance
+        .collection(PersonalCare.COLLECTION)
+        .add(personalCare.serialize());
+    return ref.documentID;
+  }
+  
+   static Future<Map<String, String>> uploadStorage({
+    @required File image,
+    String filePath,
+    @required String uid,
+    @required Function listener,
+  }) async {
+    filePath ??= '${PersonalCare.IMAGE_FOLDER}/$uid/${DateTime.now()}';
+
+    StorageUploadTask task =
+        FirebaseStorage.instance.ref().child(filePath).putFile(image);
+
+    task.events.listen((event) {
+      double percentage = (event.snapshot.bytesTransferred.toDouble() /
+              event.snapshot.totalByteCount.toDouble()) *
+          100;
+      listener(percentage);
+    });
+    var download = await task.onComplete;
+    String url = await download.ref.getDownloadURL();
+    return {'url': url, 'path': filePath};
+  }
+  
 }

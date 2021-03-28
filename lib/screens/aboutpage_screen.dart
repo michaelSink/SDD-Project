@@ -195,12 +195,6 @@ class _AboutPageState extends State<AboutPageScreen> {
           ],
         ),
         body: _aboutusList(),
-        floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add_comment),
-        onPressed: () {
-          //Navigator.pushNamed(context, questionScreen.routeName);
-        },
-      ),
         );
   }
 
