@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:SDD_Project/model/diagnosis.dart';
 import 'package:SDD_Project/model/hotline.dart';
+import 'package:SDD_Project/model/location.dart';
 import 'package:SDD_Project/model/medicalHistory.dart';
 import 'package:SDD_Project/model/personalcare.dart';
 import 'package:SDD_Project/model/vault.dart';
@@ -17,6 +18,44 @@ class FirebaseController {
     AuthResult auth = await FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password);
     return auth.user;
+  }
+
+    static Future<Map<String, String>> uploadStorage({
+    @required File image,
+    String filePath,
+    @required String uid,
+  }) async {
+    filePath ??= '${Location.IMAGE_FOLDER}/$uid/${DateTime.now()}';
+
+    StorageUploadTask task =
+        FirebaseStorage.instance.ref().child(filePath).putFile(image);
+
+    var download = await task.onComplete;
+    String url = await download.ref.getDownloadURL();
+    return {'url': url, 'path': filePath};
+  }
+
+  static Future<String> addLocation(Location location) async{
+    DocumentReference ref = await Firestore.instance
+        .collection(Location.COLLECTION)
+        .add(location.serialize());
+    return ref.documentID;
+  }
+
+    static Future<List<Location>> getLocations(String uid) async{
+    QuerySnapshot querySnapshot = await Firestore.instance
+        .collection(Location.COLLECTION)
+        .where(Location.CREATED_BY, isEqualTo: uid)
+        .orderBy(Location.NAME)
+        .getDocuments();
+
+    var results = <Location>[];
+    if(querySnapshot != null && querySnapshot.documents.length != 0){
+      for(var doc in querySnapshot.documents){
+        results.add(Location.deserialize(doc.data, doc.documentID));
+      }
+    }
+    return results;
   }
 
   static Future<List<Prescription>> getPrescriptions(String uid) async {
