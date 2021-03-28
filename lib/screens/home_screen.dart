@@ -150,7 +150,7 @@ class _HomeState extends State<HomeScreen> {
             Card(
               child: ListTile(
                 leading: Icon(Icons.house),
-                title: Text('Socail Settings'),
+                title: Text('Social Settings'),
                 onTap: con.locationScreen,
               ),
             ),
