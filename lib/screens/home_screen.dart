@@ -1,6 +1,7 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/contacts.dart';
 import 'package:SDD_Project/model/journal.dart';
+import 'package:SDD_Project/model/personalcare.dart';
 import 'package:SDD_Project/model/location.dart';
 import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/screens/calender_screen.dart';
@@ -13,6 +14,7 @@ import 'package:SDD_Project/screens/diagnosis_screen.dart';
 import 'package:SDD_Project/screens/familyHistory_screen.dart';
 import 'package:SDD_Project/screens/location_screen.dart';
 import 'package:SDD_Project/screens/prescription_screen.dart';
+import 'package:SDD_Project/screens/questionhome_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -36,12 +38,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeState extends State<HomeScreen> {
   _Controller con;
   FirebaseUser user;
+    List<PersonalCare> personalCare;
 
   @override
   void initState() {
     super.initState();
     con = _Controller(this);
   }
+
+  void render(fn) => setState(fn);
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +80,11 @@ class _HomeState extends State<HomeScreen> {
                 leading: Icon(Icons.developer_board),
                 title: Text('About page'),
                 onTap: con.about,
+              ),
+              ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text('Question Form'),
+                onTap: con.questionForm,
               ),
             ],
           ),
@@ -289,6 +299,16 @@ class _Controller {
         title: 'Error loading Journal Screen',
       );
     }
+  }
+
+      // read all question's from firebase
+    void questionForm() async {
+    await Navigator.pushNamed(_state.context, QuestionHomeScreen.routeName,
+    arguments: {
+      'user': _state.user,
+      'personalCareList': _state.personalCare
+    });
+    _state.render(() {});
   }
 
   void about() {

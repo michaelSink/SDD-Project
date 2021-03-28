@@ -149,7 +149,7 @@ class _Controller{
 
     try {
       MyDialog.circularProgressStart(_state.context);
-      Map<String, String> photoInfo = await FirebaseController.uploadStorage(
+      Map<String, String> photoInfo = await FirebaseController.uploadLocationStorage(
         image: _state.image,
         uid: _state.user.uid,
       );
