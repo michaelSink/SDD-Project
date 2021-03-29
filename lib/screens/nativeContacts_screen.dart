@@ -65,8 +65,8 @@ class _NativeContactsState extends State<NativeContacts>{
                     },
                 child: ListTile(
                 contentPadding: EdgeInsets.all(8),
-                leading: contacts.elementAt(0).avatar.length != 0 ? 
-                  Image.memory(contacts.elementAt(0).avatar)  
+                leading: contacts.elementAt(index).avatar.length != 0 ? 
+                  Image.memory(contacts.elementAt(index).avatar)  
                 : 
                   Image.asset("static/images/default-user.png"),
                 title: Text(contacts.elementAt(index).displayName, style: TextStyle(fontSize: 20),),
