@@ -7,16 +7,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class AddFeelGoodVault extends StatefulWidget {
-  static const routeName = "/feelgoodvault/addfeelgoodvault";
-
+class EditFeelGoodVault extends StatefulWidget {
+  static const routeName = "/feelgoodvault/editfeelgoodvault";
   @override
   State<StatefulWidget> createState() {
-    return _AddFeelGoodVault();
+    return _EditFeelGoodVault();
   }
 }
 
-class _AddFeelGoodVault extends State<AddFeelGoodVault> {
+class _EditFeelGoodVault extends State<EditFeelGoodVault> {
   _Controller con;
   var formKey = GlobalKey<FormState>();
   var formKey2 = GlobalKey<FormState>();
@@ -27,6 +26,7 @@ class _AddFeelGoodVault extends State<AddFeelGoodVault> {
   String user;
   int view;
   Vault vault;
+  int index;
 
   @override
   void initState() {
@@ -41,6 +41,7 @@ class _AddFeelGoodVault extends State<AddFeelGoodVault> {
     Map map = ModalRoute.of(context).settings.arguments;
     user ??= map['user'];
     view ??= map['view'];
+    index ??= map['index'];
     vault ??= map['vault'];
 
     return Scaffold(
@@ -51,7 +52,7 @@ class _AddFeelGoodVault extends State<AddFeelGoodVault> {
         ),
       ),
       appBar: AppBar(
-        title: Text("Add new Item"),
+        title: Text("Edit Item"),
       ),
       body: con.getForm(view),
     );
@@ -59,7 +60,7 @@ class _AddFeelGoodVault extends State<AddFeelGoodVault> {
 }
 
 class _Controller {
-  _AddFeelGoodVault _state;
+  _EditFeelGoodVault _state;
   _Controller(this._state);
   String name, quote, song, story, video, songValue, videoValue;
 
@@ -82,15 +83,15 @@ class _Controller {
                           padding: EdgeInsets.all(10),
                           width: MediaQuery.of(_state.context).size.width,
                           child: _state.image == null
-                              ? Icon(
-                                  Icons.filter_frames,
-                                  size: 300,
-                                  color: Colors.brown[100],
+                              ? Image.network(
+                                  _state.vault.pictures[_state.index].photoURL,
+                                  scale: 2.5,
+                                  alignment: Alignment.center,
                                 )
                               : Image.file(
                                   _state.image,
                                   alignment: Alignment.center,
-                                  scale: 3,
+                                  scale: 2.5,
                                 ),
                         ),
                         Positioned(
@@ -136,7 +137,7 @@ class _Controller {
                         decoration: InputDecoration(
                           hintText: "Name",
                         ),
-                        initialValue: "Hello",
+                        initialValue: _state.vault.pictures[_state.index].name,
                         autocorrect: true,
                         textAlign: TextAlign.center,
                         validator: validateName,
@@ -160,6 +161,7 @@ class _Controller {
               decoration: InputDecoration(
                 hintText: "Quote",
               ),
+              initialValue: _state.vault.quotes[_state.index],
               autocorrect: true,
               maxLines: 1,
               validator: validateQuote,
@@ -181,6 +183,7 @@ class _Controller {
                     hintText: "Song URL",
                   ),
                   autocorrect: true,
+                  initialValue: _state.vault.songs[_state.index].name,
                   maxLines: 1,
                   validator: validateSong,
                   onSaved: saveSong,
@@ -195,7 +198,9 @@ class _Controller {
                     return DropdownMenuItem(
                         child: new Text(value), value: value);
                   }).toList(),
-                  value: songValue,
+                  value: songValue == null
+                      ? _state.vault.songs[_state.index].category
+                      : songValue,
                   hint: Text("Category"),
                   onChanged: (String changedValue) {
                     _state.setState(() {
@@ -218,6 +223,7 @@ class _Controller {
               decoration: InputDecoration(
                 hintText: "Story",
               ),
+              initialValue: _state.vault.stories[_state.index],
               autocorrect: true,
               maxLines: 30,
               validator: validateStory,
@@ -239,6 +245,7 @@ class _Controller {
                     hintText: "Video URL",
                   ),
                   autocorrect: true,
+                  initialValue: _state.vault.videos[_state.index].name,
                   maxLines: 1,
                   validator: validateVideo,
                   onSaved: saveVideo,
@@ -253,7 +260,9 @@ class _Controller {
                     return DropdownMenuItem(
                         child: new Text(value), value: value);
                   }).toList(),
-                  value: videoValue,
+                  value: videoValue == null
+                      ? _state.vault.videos[_state.index].category
+                      : videoValue,
                   hint: Text("Category"),
                   onChanged: (String changedValue) {
                     _state.setState(() {
@@ -277,25 +286,27 @@ class _Controller {
     c = c.toUpperCase();
     String b = s.substring(1);
     b = b.toLowerCase();
-    name = c + b;
+    _state.vault.pictures[_state.index].name = c + b;
   }
 
   void saveQuote(String s) {
-    quote = s;
+    _state.vault.quotes[_state.index] = s;
   }
 
   void saveSong(String s) {
-    song = s;
-    songValue;
+    _state.vault.songs[_state.index].name = s;
+    if (songValue != null)
+      _state.vault.songs[_state.index].category = songValue;
   }
 
   void saveStory(String s) {
-    story = s;
+    _state.vault.stories[_state.index] = s;
   }
 
   void saveVideo(String s) {
-    video = s;
-    videoValue;
+    _state.vault.videos[_state.index].name = s;
+    if (videoValue != null)
+      _state.vault.videos[_state.index].category = videoValue;
   }
 
   String validateName(String s) {
@@ -317,9 +328,6 @@ class _Controller {
     if (s.isEmpty) {
       return "Please input a song url";
     }
-    if (songValue.isEmpty) {
-      return "Value hasn't been selected";
-    }
     return null;
   }
 
@@ -334,9 +342,6 @@ class _Controller {
     if (s.isEmpty) {
       return "Please input a video url";
     }
-    if (videoValue.isEmpty) {
-      return "Value hasn't been selected";
-    }
     return null;
   }
 
@@ -345,172 +350,107 @@ class _Controller {
     //print(_state.view);
     switch (_state.view) {
       case 1:
-        uploadPic();
+        updatePic();
         break;
       case 2:
-        uploadQuote();
+        updateQuote();
         break;
       case 3:
-        uploadSong();
+        updateSong();
         break;
       case 4:
-        uploadStory();
+        updateStory();
         break;
       case 5:
-        uploadVideo();
+        updateVideo();
         break;
     }
   }
 
-  void uploadPic() async {
+  void updatePic() async {
     if (!_state.formKey.currentState.validate()) {
       return;
     }
-    if (_state.image == null) {
-      MyDialog.info(
-          context: _state.context,
-          title: "No Picture",
-          content: "You must include a picture");
-      return;
-    }
-
     _state.formKey.currentState.save();
     MyDialog.circularProgressStart(_state.context);
 
     try {
-      Map<String, String> photo = await FirebaseController.addPicToStorage(
-          image: _state.image, email: _state.user);
-
-      var p = Picture(
-        name: name,
-        photoPath: photo["path"],
-        photoURL: photo["url"],
-        owner: _state.user,
-      );
-      //print("Made new picture");
-      //print(p.docId);
-      p.docId = await FirebaseController.addPicToVault(_state.vault.docId, p);
-
+      //a new pic was added?
+      if (_state.image != null) {
+        Map<String, String> photo = await FirebaseController.addPicToStorage(
+            image: _state.image, email: _state.user);
+        _state.vault.pictures[_state.index].photoPath = photo['path'];
+        _state.vault.pictures[_state.index].photoURL = photo['url'];
+      }
+      await FirebaseController.updatePicture(
+          _state.vault.docId, _state.vault.pictures[_state.index]);
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context); //pop form screen
-      Navigator.pop(_state.context); //pop old AlertDialog
       MyDialog.info(
           context: _state.context,
-          title: "Add Pic Complete",
-          content: "Pic added successfully");
+          title: "Edit Pic Complete",
+          content: "Pic successfully edited");
     } catch (e) {
       MyDialog.circularProgressEnd(_state.context);
       MyDialog.info(
           context: _state.context,
-          title: "Add Pic Error",
+          title: "Edit Pic Error",
           content: e.toString());
     }
   }
 
-  void uploadQuote() async {
-    if (!_state.formKey2.currentState.validate()) {
-      return;
-    }
-    _state.formKey2.currentState.save();
-    MyDialog.circularProgressStart(_state.context);
-
-    print("start saving quote");
-    print(quote);
-    try {
-      await FirebaseController.addQuote(quote, _state.user);
-      MyDialog.circularProgressEnd(_state.context);
-      Navigator.pop(_state.context);
-      Navigator.pop(_state.context);
-      MyDialog.info(
-          context: _state.context,
-          title: "Add Quote Complete",
-          content: "Quote added successfully");
-    } catch (e) {
-      MyDialog.circularProgressEnd(_state.context);
-      MyDialog.info(
-          context: _state.context,
-          title: "Add Quote Error",
-          content: e.toString());
-    }
+  void updateQuote() async {
+    print("Updating quote");
   }
 
-  void uploadSong() async {
+  void updateSong() async {
     if (!_state.formKey3.currentState.validate()) {
       return;
     }
 
     _state.formKey3.currentState.save();
     MyDialog.circularProgressStart(_state.context);
-
     try {
-      var s = Songs(name: song, category: songValue);
-      s.docId = await FirebaseController.addSong(_state.vault.docId, s);
-
+      await FirebaseController.updateSong(_state.vault.docId, _state.vault.songs[_state.index]);
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context); //pop form screen
-      Navigator.pop(_state.context); //pop old AlertDialog
       MyDialog.info(
           context: _state.context,
-          title: "Add Song Complete",
-          content: "Song added successfully");
+          title: "Edit Song Complete",
+          content: "Song successfully edited");
     } catch (e) {
       MyDialog.circularProgressEnd(_state.context);
       MyDialog.info(
           context: _state.context,
-          title: "Add Song Error",
+          title: "Edit Song Error",
           content: e.toString());
     }
   }
 
-  void uploadStory() async {
-    if (!_state.formKey4.currentState.validate()) {
-      return;
-    }
-    _state.formKey4.currentState.save();
-    MyDialog.circularProgressStart(_state.context);
-
-    try {
-      await FirebaseController.addStory(story, _state.user);
-      MyDialog.circularProgressEnd(_state.context);
-      Navigator.pop(_state.context);
-      Navigator.pop(_state.context);
-      MyDialog.info(
-          context: _state.context,
-          title: "Add Story Complete",
-          content: "Story added successfully");
-    } catch (e) {
-      MyDialog.circularProgressEnd(_state.context);
-      MyDialog.info(
-          context: _state.context,
-          title: "Add Quote Error",
-          content: e.toString());
-    }
+  void updateStory() async {
+    print("Updating story");
   }
 
-  void uploadVideo() async {
-    if (!_state.formKey5.currentState.validate()) {
+  void updateVideo() async {
+     if (!_state.formKey5.currentState.validate()) {
       return;
     }
 
     _state.formKey5.currentState.save();
     MyDialog.circularProgressStart(_state.context);
-
     try {
-      var v = Videos(name: video, category: videoValue);
-      v.docId = await FirebaseController.addVideo(_state.vault.docId, v);
-
+      await FirebaseController.updateVideo(_state.vault.docId, _state.vault.videos[_state.index]);
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context); //pop form screen
-      Navigator.pop(_state.context); //pop old AlertDialog
       MyDialog.info(
           context: _state.context,
-          title: "Add Video Complete",
-          content: "Video added successfully");
+          title: "Edit Video Complete",
+          content: "Video successfully edited");
     } catch (e) {
       MyDialog.circularProgressEnd(_state.context);
       MyDialog.info(
           context: _state.context,
-          title: "Add Video Error",
+          title: "Edit Video Error",
           content: e.toString());
     }
   }

@@ -4,6 +4,7 @@ import 'package:SDD_Project/screens/addLocation_screen.dart';
 import 'package:SDD_Project/screens/addfeelgoodvault_screen.dart';
 import 'package:SDD_Project/screens/calender_screen.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
+import 'package:SDD_Project/screens/editfeelgoodpage.dart';
 import 'package:SDD_Project/screens/editprescription_screen.dart';
 import 'package:SDD_Project/screens/familyHistory_screen.dart';
 import 'package:SDD_Project/screens/home_screen.dart';
@@ -68,6 +69,7 @@ class AppRoutes extends StatelessWidget{
         AddFeelGoodVault.routeName: (context) => AddFeelGoodVault(),
         QuestionFormScreen.routeName: (context) => QuestionFormScreen(),
         QuestionHomeScreen.routeName: (context) => QuestionHomeScreen(),
+        EditFeelGoodVault.routeName: (context) => EditFeelGoodVault(),
 
       }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/screens/addfeelgoodvault_screen.dart';
+import 'package:SDD_Project/screens/editfeelgoodpage.dart';
 import 'package:flutter/material.dart';
 
 import 'views/mydialog.dart';
@@ -66,17 +67,8 @@ class _FeelGoodVault extends State<FeelGoodVault> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Feel Good Vault"),
-          actions: <Widget>[
-            view != 0
-                ? IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      con.delete(view);
-                    })
-                : Container()
-          ],
-        ),
+            title: Text("Feel Good Vault"),
+            actions: con.actions(view, indexToDelete)),
         body: viewSelected == false
             ? Column(
                 children: <Widget>[
@@ -222,6 +214,8 @@ class _FeelGoodVault extends State<FeelGoodVault> {
 class _Controller {
   _FeelGoodVault _state;
   _Controller(this._state);
+  var searchKey = GlobalKey<FormState>();
+  String searchWord;
 
   Widget buildList(view) {
     Widget returnWidget;
@@ -494,6 +488,50 @@ class _Controller {
           context: _state.context,
           title: "Delete Video Error",
           content: e.toString());
+    }
+  }
+
+  //action buttons on the appbar
+  List<Widget> actions(int view, int index) {
+    if (view == 0) {
+      return [Container()];
+    } else if (index != null) {
+      return [
+        IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () async => await Navigator.pushNamed(
+                    _state.context, EditFeelGoodVault.routeName, arguments: {
+                  'user': _state.user,
+                  'view': view,
+                  'index': index,
+                  'vault': _state.vault
+                })),
+        IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              delete(view);
+            })
+      ];
+    } else {
+      return [
+        Container(
+          padding: EdgeInsets.all(10),
+          width: 150.0,
+          child: Form(
+            key: searchKey,
+            child: TextFormField(
+              decoration: InputDecoration(
+                hintText: "Search Name",
+                fillColor: Colors.white,
+                filled: true,
+              ),
+              autocorrect: false,
+              onSaved: (_) {},
+            ),
+          ),
+        ),
+        IconButton(icon: Icon(Icons.search), onPressed: () {})
+      ];
     }
   }
 }

@@ -35,14 +35,14 @@ class FirebaseController {
     return {'url': url, 'path': filePath};
   }
 
-  static Future<String> addLocation(Location location) async{
+  static Future<String> addLocation(Location location) async {
     DocumentReference ref = await Firestore.instance
         .collection(Location.COLLECTION)
         .add(location.serialize());
     return ref.documentID;
   }
 
-    static Future<List<Location>> getLocations(String uid) async{
+  static Future<List<Location>> getLocations(String uid) async {
     QuerySnapshot querySnapshot = await Firestore.instance
         .collection(Location.COLLECTION)
         .where(Location.CREATED_BY, isEqualTo: uid)
@@ -50,8 +50,8 @@ class FirebaseController {
         .getDocuments();
 
     var results = <Location>[];
-    if(querySnapshot != null && querySnapshot.documents.length != 0){
-      for(var doc in querySnapshot.documents){
+    if (querySnapshot != null && querySnapshot.documents.length != 0) {
+      for (var doc in querySnapshot.documents) {
         results.add(Location.deserialize(doc.data, doc.documentID));
       }
     }
@@ -376,7 +376,7 @@ class FirebaseController {
     return;
   }
 
-  //3 functions for adding pic to storage, then adding information about pic to firestore, then firestore doc to vault array
+  //2 functions for adding pic to storage, then adding information about pic to firestore, then firestore doc to vault array
   static Future<Map<String, String>> addPicToStorage(
       {@required File image, @required String email}) async {
     print("Start add Pic to Storage");
@@ -435,10 +435,9 @@ class FirebaseController {
         .where(Contacts.FIRSTNAME, isEqualTo: searchKey)
         .getDocuments();
 
-
     var result = <Contacts>[];
-    if(snapshot != null && snapshot.documents.length != 0){
-      for(var doc in snapshot.documents){
+    if (snapshot != null && snapshot.documents.length != 0) {
+      for (var doc in snapshot.documents) {
         result.add(Contacts.deserialize(doc.data, doc.documentID));
       }
     }
@@ -453,17 +452,17 @@ class FirebaseController {
     List<dynamic> output = [];
     //validate must have passed that there is a story to delete
     if (snapshot != null && snapshot.documents.length != 0) {
-        output = snapshot.documents[0].data[Vault.STORIES];
+      output = snapshot.documents[0].data[Vault.STORIES];
     }
     output.removeAt(index);
     await Firestore.instance
-          .collection(Vault.COLLECTION)
-          .document(snapshot.documents[0].documentID)
-          .updateData({Vault.STORIES: output});
+        .collection(Vault.COLLECTION)
+        .document(snapshot.documents[0].documentID)
+        .updateData({Vault.STORIES: output});
     return;
   }
 
-   static Future deleteQuote(String email, int index) async {
+  static Future deleteQuote(String email, int index) async {
     QuerySnapshot snapshot = await Firestore.instance
         .collection(Vault.COLLECTION)
         .where(Vault.OWNER, isEqualTo: email)
@@ -471,13 +470,13 @@ class FirebaseController {
     List<dynamic> output = [];
     //validate must have passed that there is a story to delete
     if (snapshot != null && snapshot.documents.length != 0) {
-        output = snapshot.documents[0].data[Vault.QUOTES];
+      output = snapshot.documents[0].data[Vault.QUOTES];
     }
     output.removeAt(index);
     await Firestore.instance
-          .collection(Vault.COLLECTION)
-          .document(snapshot.documents[0].documentID)
-          .updateData({Vault.QUOTES: output});
+        .collection(Vault.COLLECTION)
+        .document(snapshot.documents[0].documentID)
+        .updateData({Vault.QUOTES: output});
     return;
   }
 
@@ -488,12 +487,12 @@ class FirebaseController {
         .collection(Vault.PICTURES)
         .document(pic.docId)
         .delete();
-    
+
     await FirebaseStorage.instance.ref().child(pic.photoPath).delete();
     return;
   }
 
-   static Future deleteSong(Songs s, String vaultId) async {
+  static Future deleteSong(Songs s, String vaultId) async {
     await Firestore.instance
         .collection(Vault.COLLECTION)
         .document(vaultId)
@@ -503,7 +502,7 @@ class FirebaseController {
     return;
   }
 
-   static Future deleteVideo(Videos v, String vaultId) async {
+  static Future deleteVideo(Videos v, String vaultId) async {
     await Firestore.instance
         .collection(Vault.COLLECTION)
         .document(vaultId)
@@ -520,8 +519,8 @@ class FirebaseController {
         .add(personalCare.serialize());
     return ref.documentID;
   }
-  
-   static Future<Map<String, String>> uploadStorage({
+
+  static Future<Map<String, String>> uploadStorage({
     @required File image,
     String filePath,
     @required String uid,
@@ -542,5 +541,31 @@ class FirebaseController {
     String url = await download.ref.getDownloadURL();
     return {'url': url, 'path': filePath};
   }
-  
+
+  static Future updatePicture(String vaultId, Picture p) async {
+    await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.PICTURES)
+        .document(p.docId)
+        .setData(p.serialize());
+  }
+
+  static Future updateVideo(String vaultId, Videos v) async {
+    await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.VIDEOS)
+        .document(v.docId)
+        .setData(v.serialize());
+  }
+
+  static Future updateSong(String vaultId, Songs s) async {
+    await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.SONGS)
+        .document(s.docId)
+        .setData(s.serialize());
+  }
 }
