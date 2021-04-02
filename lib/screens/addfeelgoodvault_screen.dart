@@ -327,6 +327,9 @@ class _Controller {
     if (s.isEmpty) {
       return "Please type a story";
     }
+    if(s.length < 50){
+      return "Stories must be over 50 chars long";
+    }
     return null;
   }
 
@@ -482,7 +485,7 @@ class _Controller {
       MyDialog.circularProgressEnd(_state.context);
       MyDialog.info(
           context: _state.context,
-          title: "Add Quote Error",
+          title: "Add Story Error",
           content: e.toString());
     }
   }

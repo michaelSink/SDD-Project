@@ -499,13 +499,16 @@ class _Controller {
       return [
         IconButton(
             icon: Icon(Icons.edit),
-            onPressed: () async => await Navigator.pushNamed(
-                    _state.context, EditFeelGoodVault.routeName, arguments: {
-                  'user': _state.user,
-                  'view': view,
-                  'index': index,
-                  'vault': _state.vault
-                })),
+            onPressed: () async {
+              await Navigator.pushNamed(
+                  _state.context, EditFeelGoodVault.routeName, arguments: {
+                'user': _state.user,
+                'view': view,
+                'index': index,
+                'vault': _state.vault
+              });
+              _state.render((){});
+            }),
         IconButton(
             icon: Icon(Icons.delete),
             onPressed: () {

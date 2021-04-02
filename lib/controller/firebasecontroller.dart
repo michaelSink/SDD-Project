@@ -335,7 +335,7 @@ class FirebaseController {
     List<dynamic> output = [];
     if (snapshot != null && snapshot.documents.length != 0) {
       output = snapshot.documents[0].data[Vault.QUOTES];
-      print(output);
+      //print(output);
       output.add(q);
       await Firestore.instance
           .collection(Vault.COLLECTION)
@@ -375,6 +375,7 @@ class FirebaseController {
     }
     return;
   }
+
 
   //2 functions for adding pic to storage, then adding information about pic to firestore, then firestore doc to vault array
   static Future<Map<String, String>> addPicToStorage(
@@ -542,6 +543,7 @@ class FirebaseController {
     return {'url': url, 'path': filePath};
   }
 
+  //================================update functions for mementos======================================
   static Future updatePicture(String vaultId, Picture p) async {
     await Firestore.instance
         .collection(Vault.COLLECTION)
@@ -567,5 +569,13 @@ class FirebaseController {
         .collection(Vault.SONGS)
         .document(s.docId)
         .setData(s.serialize());
+  }
+
+  static Future updateQuote(String vaultId, List<dynamic> quotes)async{
+    await Firestore.instance.collection(Vault.COLLECTION).document(vaultId).updateData({"quote": quotes});
+  }
+
+  static Future updateStory(String vaultId, List<dynamic> stories)async{
+    await Firestore.instance.collection(Vault.COLLECTION).document(vaultId).updateData({"stories": stories});
   }
 }

@@ -400,7 +400,28 @@ class _Controller {
   }
 
   void updateQuote() async {
-    print("Updating quote");
+    if (!_state.formKey2.currentState.validate()) {
+      return;
+    }
+    _state.formKey2.currentState.save();
+    MyDialog.circularProgressStart(_state.context);
+
+    try{
+      await FirebaseController.updateQuote(_state.vault.docId, _state.vault.quotes);
+      MyDialog.circularProgressEnd(_state.context);
+      Navigator.pop(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Edit Quote Complete",
+          content: "Quote successfully edited");
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Edit Quote Error",
+          content: e.toString());
+    }
+
   }
 
   void updateSong() async {
@@ -428,7 +449,27 @@ class _Controller {
   }
 
   void updateStory() async {
-    print("Updating story");
+     if (!_state.formKey4.currentState.validate()) {
+      return;
+    }
+    _state.formKey4.currentState.save();
+    MyDialog.circularProgressStart(_state.context);
+
+    try {
+      await FirebaseController.updateStory(_state.vault.docId, _state.vault.stories[_state.index]);
+      MyDialog.circularProgressEnd(_state.context);
+      Navigator.pop(_state.context); //pop form screen
+      MyDialog.info(
+          context: _state.context,
+          title: "Edit Story Complete",
+          content: "Story successfully edited");
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Edit Story Error",
+          content: e.toString());
+    }
   }
 
   void updateVideo() async {
