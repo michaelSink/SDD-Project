@@ -61,7 +61,7 @@ class _AddFeelGoodVault extends State<AddFeelGoodVault> {
 class _Controller {
   _AddFeelGoodVault _state;
   _Controller(this._state);
-  String name, quote, song, story, video, songValue, videoValue;
+  String name, quote, song, story, video, songValue, videoValue, quoteValue;
 
   Widget getForm(int view) {
     switch (view) {
@@ -136,7 +136,6 @@ class _Controller {
                         decoration: InputDecoration(
                           hintText: "Name",
                         ),
-                        initialValue: "Hello",
                         autocorrect: true,
                         textAlign: TextAlign.center,
                         validator: validateName,
@@ -153,18 +152,40 @@ class _Controller {
       case 2:
         return Form(
           key: _state.formKey2,
-          child: Container(
-            width: MediaQuery.of(_state.context).size.width,
-            padding: EdgeInsets.all(5),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: "Quote",
+          child: Column(
+            children: [
+              Container(
+                width: MediaQuery.of(_state.context).size.width,
+                padding: EdgeInsets.all(5),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Quote",
+                  ),
+                  autocorrect: true,
+                  maxLines: 1,
+                  validator: validateQuote,
+                  onSaved: saveQuote,
+                ),
               ),
-              autocorrect: true,
-              maxLines: 1,
-              validator: validateQuote,
-              onSaved: saveQuote,
-            ),
+              Container(
+                width: MediaQuery.of(_state.context).size.width,
+                padding: EdgeInsets.all(5),
+                child: DropdownButton(
+                  items: <String>["Happy", "Motivational", "Encouraging"]
+                      .map((String value) {
+                    return DropdownMenuItem(
+                        child: new Text(value), value: value);
+                  }).toList(),
+                  value: quoteValue,
+                  hint: Text("Category"),
+                  onChanged: (String changedValue) {
+                    _state.setState(() {
+                      quoteValue = changedValue;
+                    });
+                  },
+                ),
+              ),
+            ],
           ),
         );
         break;
@@ -282,6 +303,7 @@ class _Controller {
 
   void saveQuote(String s) {
     quote = s;
+    quoteValue;
   }
 
   void saveSong(String s) {
@@ -310,6 +332,9 @@ class _Controller {
     if (s.isEmpty) {
       return "Please input a quote";
     }
+    if(quoteValue.isEmpty){
+      return "Value hasn't been selected";
+    }
     return null;
   }
 
@@ -327,7 +352,7 @@ class _Controller {
     if (s.isEmpty) {
       return "Please type a story";
     }
-    if(s.length < 50){
+    if (s.length < 50) {
       return "Stories must be over 50 chars long";
     }
     return null;
@@ -416,11 +441,11 @@ class _Controller {
     }
     _state.formKey2.currentState.save();
     MyDialog.circularProgressStart(_state.context);
-
-    print("start saving quote");
-    print(quote);
+    
     try {
-      await FirebaseController.addQuote(quote, _state.user);
+      Quotes q = Quotes(quote: quote, category: quoteValue);
+      q.docId = await FirebaseController.addQuote(_state.vault.docId, q);
+
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context);
       Navigator.pop(_state.context);

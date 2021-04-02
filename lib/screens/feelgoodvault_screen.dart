@@ -257,7 +257,8 @@ class _Controller {
               itemCount: _state.vault.quotes.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  title: Text(_state.vault.quotes[index]),
+                  title: Text(_state.vault.quotes[index].quote),
+                  subtitle: Text(_state.vault.quotes[index].category),
                   contentPadding: EdgeInsets.all(5),
                   horizontalTitleGap: 2.0,
                   onLongPress: () {
@@ -417,7 +418,7 @@ class _Controller {
     print("delete quote");
     MyDialog.circularProgressStart(_state.context);
     try {
-      await FirebaseController.deleteQuote(_state.user, _state.indexToDelete);
+      await FirebaseController.deleteQuote(_state.vault.docId, _state.vault.quotes[_state.indexToDelete]);
       _state.vault.quotes.removeAt(_state.indexToDelete);
       MyDialog.circularProgressEnd(_state.context);
       _state.render(() {

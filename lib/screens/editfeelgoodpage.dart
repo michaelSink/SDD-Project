@@ -62,7 +62,7 @@ class _EditFeelGoodVault extends State<EditFeelGoodVault> {
 class _Controller {
   _EditFeelGoodVault _state;
   _Controller(this._state);
-  String name, quote, song, story, video, songValue, videoValue;
+  String name, quote, song, story, video, songValue, videoValue, quoteValue;
 
   Widget getForm(int view) {
     switch (view) {
@@ -154,19 +154,43 @@ class _Controller {
       case 2:
         return Form(
           key: _state.formKey2,
-          child: Container(
-            width: MediaQuery.of(_state.context).size.width,
-            padding: EdgeInsets.all(5),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: "Quote",
+          child: Column(
+            children: [
+              Container(
+                width: MediaQuery.of(_state.context).size.width,
+                padding: EdgeInsets.all(5),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    hintText: "Quote",
+                  ),
+                  initialValue: _state.vault.quotes[_state.index].quote,
+                  autocorrect: true,
+                  maxLines: 1,
+                  validator: validateQuote,
+                  onSaved: saveQuote,
+                ),
               ),
-              initialValue: _state.vault.quotes[_state.index],
-              autocorrect: true,
-              maxLines: 1,
-              validator: validateQuote,
-              onSaved: saveQuote,
-            ),
+              Container(
+                width: MediaQuery.of(_state.context).size.width,
+                padding: EdgeInsets.all(5),
+                child: DropdownButton(
+                  items: <String>["Happy", "Motivational", "Encouraging"]
+                      .map((String value) {
+                    return DropdownMenuItem(
+                        child: new Text(value), value: value);
+                  }).toList(),
+                  value: quoteValue == null
+                      ? _state.vault.quotes[_state.index].category
+                      : quoteValue,
+                  hint: Text("Category"),
+                  onChanged: (String changedValue) {
+                    _state.setState(() {
+                      quoteValue = changedValue;
+                    });
+                  },
+                ),
+              ),
+            ],
           ),
         );
         break;
@@ -290,7 +314,9 @@ class _Controller {
   }
 
   void saveQuote(String s) {
-    _state.vault.quotes[_state.index] = s;
+    _state.vault.quotes[_state.index].quote = s;
+     if (quoteValue != null)
+      _state.vault.quotes[_state.index].category = quoteValue;
   }
 
   void saveSong(String s) {
@@ -407,7 +433,7 @@ class _Controller {
     MyDialog.circularProgressStart(_state.context);
 
     try{
-      await FirebaseController.updateQuote(_state.vault.docId, _state.vault.quotes);
+      await FirebaseController.updateQuote(_state.vault.docId, _state.vault.quotes[_state.index]);
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context);
       MyDialog.info(

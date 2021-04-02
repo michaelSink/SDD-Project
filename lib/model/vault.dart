@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 class Vault {
   static const COLLECTION = "vault";
 
@@ -13,7 +15,7 @@ class Vault {
   List<Songs> songs;
   List<dynamic> stories;
   List<Picture> pictures;
-  List<dynamic> quotes;
+  List<Quotes> quotes;
   List<Videos> videos;
 
   List<Songs> _songs;
@@ -41,11 +43,11 @@ class Vault {
     };
   }
 
-  static Vault deserialize(data, String doc, List<Picture> pics, List<Songs> songs, List<Videos> vids) {
+  static Vault deserialize(data, String doc, List<Picture> pics, List<Songs> songs, List<Videos> vids, List<Quotes> quotes) {
     return Vault(
         docId: doc,
         owner: data[Vault.OWNER],
-        quotes: data[Vault.QUOTES],
+        quotes: quotes,
         songs: songs,
         stories: data[Vault.STORIES],
         videos: vids,
@@ -153,8 +155,69 @@ class Videos {
 
     static Videos deserialize(Map<String, dynamic> data, String doc){
     return Videos(
+      name: data[Videos.NAME],
+      category: data[Videos.CATEGORY],
+      docId: doc,
+      );
+  }
+
+}
+
+class Quotes {
+  static const QUOTE = "quote";
+  static const CATEGORY = "category";
+
+  String quote;
+  String category;
+  String docId;
+
+  Quotes({
+    this.quote,
+    this.category,
+    this.docId,
+  }) {}
+
+    Map<String, dynamic> serialize(){
+    return <String, dynamic>{
+      QUOTE: quote,
+      CATEGORY: category,
+    };
+  }
+
+    static Quotes deserialize(Map<String, dynamic> data, String doc){
+    return Quotes(
+      quote: data[Quotes.QUOTE],
+      category: data[Quotes.CATEGORY],
+      docId: doc,
+      );
+  }
+}
+
+class Stories {
+  static const STORY = "story";
+  static const NAME = "name";
+
+  String story;
+  String name;
+  String docId;
+
+  Stories({
+    this.name,
+    this.story,
+    this.docId,
+  }) {}
+
+    Map<String, dynamic> serialize(){
+    return <String, dynamic>{
+      NAME: name,
+      STORY: story
+    };
+  }
+
+    static Stories deserialize(Map<String, dynamic> data, String doc){
+    return Stories(
       name: data[Songs.NAME],
-      category: data[Songs.CATEGORY],
+      story: data[Stories.STORY],
       docId: doc,
       );
   }

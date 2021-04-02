@@ -228,6 +228,7 @@ class FirebaseController {
     List<Picture> pics = [];
     List<Songs> songs = [];
     List<Videos> vids = [];
+    List<Quotes> quotes = [];
     if (snapshot != null && snapshot.documents.length != 0) {
       var doc = snapshot.documents[0]; //get the first vault from the search
 
@@ -265,7 +266,7 @@ class FirebaseController {
           .document(doc.documentID)
           .collection(Vault.VIDEOS)
           .getDocuments();
-      if (snap2 != null && snap3.documents.length != 0) {
+      if (snap3 != null && snap3.documents.length != 0) {
         var doc4;
         for (int i = 0; i < snap3.documents.length; i++) {
           doc4 = snap3.documents[i];
@@ -273,7 +274,20 @@ class FirebaseController {
           vids.add(v);
         }
       }
-      result = Vault.deserialize(doc.data, doc.documentID, pics, songs, vids);
+       QuerySnapshot snap4 = await Firestore.instance
+          .collection(Vault.COLLECTION)
+          .document(doc.documentID)
+          .collection(Vault.QUOTES)
+          .getDocuments();
+      if (snap4 != null && snap4.documents.length != 0) {
+        var doc5;
+        for (int i = 0; i < snap4.documents.length; i++) {
+          doc5 = snap4.documents[i];
+          Quotes q = Quotes.deserialize(doc5.data, doc.documentID);
+          quotes.add(q);
+        }
+      }
+      result = Vault.deserialize(doc.data, doc.documentID, pics, songs, vids, quotes);
       return result;
     }
     return null;
@@ -326,29 +340,14 @@ class FirebaseController {
     return result;
   }
 
-  static Future<void> addQuote(String q, String email) async {
-    print("Start addQuote");
-    QuerySnapshot snapshot = await Firestore.instance
+  static Future<String> addQuote(String vaultId, Quotes q) async {
+    print("Start add quote to Vault");
+    DocumentReference doc = await Firestore.instance
         .collection(Vault.COLLECTION)
-        .where(Vault.OWNER, isEqualTo: email)
-        .getDocuments();
-    List<dynamic> output = [];
-    if (snapshot != null && snapshot.documents.length != 0) {
-      output = snapshot.documents[0].data[Vault.QUOTES];
-      //print(output);
-      output.add(q);
-      await Firestore.instance
-          .collection(Vault.COLLECTION)
-          .document(snapshot.documents[0].documentID)
-          .updateData({Vault.QUOTES: output});
-    } else {
-      output.add(q);
-      await Firestore.instance
-          .collection(Vault.COLLECTION)
-          .document(snapshot.documents[0].documentID)
-          .updateData({Vault.QUOTES: output});
-    }
-    return;
+        .document(vaultId)
+        .collection(Vault.QUOTES)
+        .add(q.serialize());
+    return doc.documentID;
   }
 
   static Future<void> addStory(String s, String email) async {
@@ -463,21 +462,13 @@ class FirebaseController {
     return;
   }
 
-  static Future deleteQuote(String email, int index) async {
-    QuerySnapshot snapshot = await Firestore.instance
-        .collection(Vault.COLLECTION)
-        .where(Vault.OWNER, isEqualTo: email)
-        .getDocuments();
-    List<dynamic> output = [];
-    //validate must have passed that there is a story to delete
-    if (snapshot != null && snapshot.documents.length != 0) {
-      output = snapshot.documents[0].data[Vault.QUOTES];
-    }
-    output.removeAt(index);
+  static Future deleteQuote(String vaultId, Quotes q) async {
     await Firestore.instance
         .collection(Vault.COLLECTION)
-        .document(snapshot.documents[0].documentID)
-        .updateData({Vault.QUOTES: output});
+        .document(vaultId)
+        .collection(Vault.SONGS)
+        .document(q.docId)
+        .delete();
     return;
   }
 
@@ -571,8 +562,13 @@ class FirebaseController {
         .setData(s.serialize());
   }
 
-  static Future updateQuote(String vaultId, List<dynamic> quotes)async{
-    await Firestore.instance.collection(Vault.COLLECTION).document(vaultId).updateData({"quote": quotes});
+  static Future updateQuote(String vaultId, Quotes q)async{
+    await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.QUOTES)
+        .document(q.docId)
+        .setData(q.serialize());
   }
 
   static Future updateStory(String vaultId, List<dynamic> stories)async{
