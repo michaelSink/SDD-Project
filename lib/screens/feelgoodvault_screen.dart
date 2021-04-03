@@ -305,16 +305,17 @@ class _Controller {
               itemCount: _state.vault.stories.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  title: Text("Story #" + (index + 1).toString()),
+                  title: Text(_state.vault.stories[index].title),
                   subtitle: Text(
-                      _state.vault.stories[index].substring(0, 50) + "..."),
+                      _state.vault.stories[index].story.substring(0, 50) +
+                          "..."),
                   onTap: () {
                     showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
                             content: SingleChildScrollView(
-                                child: Text(_state.vault.stories[index])),
+                                child: Text(_state.vault.stories[index].story)),
                           );
                         });
                   },
@@ -418,7 +419,8 @@ class _Controller {
     print("delete quote");
     MyDialog.circularProgressStart(_state.context);
     try {
-      await FirebaseController.deleteQuote(_state.vault.docId, _state.vault.quotes[_state.indexToDelete]);
+      await FirebaseController.deleteQuote(
+          _state.vault.docId, _state.vault.quotes[_state.indexToDelete]);
       _state.vault.quotes.removeAt(_state.indexToDelete);
       MyDialog.circularProgressEnd(_state.context);
       _state.render(() {
@@ -457,7 +459,8 @@ class _Controller {
     print("delete story at " + _state.indexToDelete.toString());
     MyDialog.circularProgressStart(_state.context);
     try {
-      await FirebaseController.deleteStory(_state.user, _state.indexToDelete);
+      await FirebaseController.deleteStory(
+          _state.vault.docId, _state.vault.stories[_state.indexToDelete]);
       _state.vault.stories.removeAt(_state.indexToDelete);
       MyDialog.circularProgressEnd(_state.context);
       _state.render(() {
@@ -508,7 +511,7 @@ class _Controller {
                 'index': index,
                 'vault': _state.vault
               });
-              _state.render((){});
+              _state.render(() {});
             }),
         IconButton(
             icon: Icon(Icons.delete),
@@ -525,17 +528,79 @@ class _Controller {
             key: searchKey,
             child: TextFormField(
               decoration: InputDecoration(
-                hintText: "Search Name",
+                hintText: toSearch(view),
                 fillColor: Colors.white,
                 filled: true,
               ),
               autocorrect: false,
-              onSaved: (_) {},
+              onSaved: saveSearchWord,
             ),
           ),
         ),
-        IconButton(icon: Icon(Icons.search), onPressed: () {})
+        IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              search(view);
+            })
       ];
     }
+  }
+
+  String toSearch(int view){
+    if(view == 1){
+      return "Search Name";
+    }
+    else if(view == 4){
+      return "Search Title";
+    }
+    else return "Search Type";
+  }
+
+  void saveSearchWord(String s) {
+    searchWord = s;
+  }
+
+  void search(int view) async {
+    searchKey.currentState.save();
+
+    List<Picture> pics;
+    List<Quotes> quotes;
+    List<Songs> songs;
+    List<Stories> stories;
+    List<Videos> videos;
+
+    MyDialog.circularProgressStart(_state.context);
+    try{
+    if (searchKey == null || searchWord.trim().isEmpty) {
+       _state.vault = await FirebaseController.getVault(_state.user);
+    } else 
+    {
+      switch(view){
+        case 1: pics = await FirebaseController.searchPics(_state.vault.docId, searchWord);
+        _state.vault.pictures = pics;
+        break;
+        case 2: quotes = await FirebaseController.searchQuotes(_state.vault.docId, searchWord);
+        _state.vault.quotes = quotes;
+        break;
+        case 3: songs = await FirebaseController.searchSongs(_state.vault.docId, searchWord);
+        _state.vault.songs = songs;
+        break;
+        case 4: stories = await FirebaseController.searchStories(_state.vault.docId, searchWord);
+        _state.vault.stories = stories;
+        break;
+        case 5: videos = await FirebaseController.searchVideos(_state.vault.docId, searchWord);
+        _state.vault.videos = videos;
+        break;
+      }
+    }
+     MyDialog.circularProgressEnd(_state.context);
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Search Error",
+          content: e.toString());
+    }
+    _state.render((){});
   }
 }

@@ -62,7 +62,7 @@ class _EditFeelGoodVault extends State<EditFeelGoodVault> {
 class _Controller {
   _EditFeelGoodVault _state;
   _Controller(this._state);
-  String name, quote, song, story, video, songValue, videoValue, quoteValue;
+  String songValue, videoValue, quoteValue;
 
   Widget getForm(int view) {
     switch (view) {
@@ -240,18 +240,37 @@ class _Controller {
       case 4:
         return Form(
           key: _state.formKey4,
-          child: Container(
-            width: MediaQuery.of(_state.context).size.width,
-            padding: EdgeInsets.all(5),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: "Story",
-              ),
-              initialValue: _state.vault.stories[_state.index],
-              autocorrect: true,
-              maxLines: 30,
-              validator: validateStory,
-              onSaved: saveStory,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  width: MediaQuery.of(_state.context).size.width,
+                  padding: EdgeInsets.all(5),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      hintText: "Title",
+                    ),
+                    autocorrect: true,
+                    initialValue: _state.vault.stories[_state.index].title,
+                    validator: validateTitle,
+                    onSaved: saveTitle,
+                  ),
+                ),
+                Container(
+                  width: MediaQuery.of(_state.context).size.width,
+                  padding: EdgeInsets.all(5),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      hintText: "Story",
+                    ),
+                    autocorrect: true,
+                    initialValue: _state.vault.stories[_state.index].story,
+                    maxLines: 25,
+                    validator: validateStory,
+                    onSaved: saveStory,
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -315,7 +334,7 @@ class _Controller {
 
   void saveQuote(String s) {
     _state.vault.quotes[_state.index].quote = s;
-     if (quoteValue != null)
+    if (quoteValue != null)
       _state.vault.quotes[_state.index].category = quoteValue;
   }
 
@@ -326,7 +345,11 @@ class _Controller {
   }
 
   void saveStory(String s) {
-    _state.vault.stories[_state.index] = s;
+    _state.vault.stories[_state.index].story = s;
+  }
+
+  void saveTitle(String s) {
+    _state.vault.stories[_state.index].title = s;
   }
 
   void saveVideo(String s) {
@@ -360,6 +383,16 @@ class _Controller {
   String validateStory(String s) {
     if (s.isEmpty) {
       return "Please type a story";
+    }
+     if (s.length < 50) {
+      return "Stories must be over 50 chars long";
+    }
+    return null;
+  }
+
+  String validateTitle(String s) {
+    if (s.isEmpty) {
+      return "Please type a title";
     }
     return null;
   }
@@ -432,8 +465,9 @@ class _Controller {
     _state.formKey2.currentState.save();
     MyDialog.circularProgressStart(_state.context);
 
-    try{
-      await FirebaseController.updateQuote(_state.vault.docId, _state.vault.quotes[_state.index]);
+    try {
+      await FirebaseController.updateQuote(
+          _state.vault.docId, _state.vault.quotes[_state.index]);
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context);
       MyDialog.info(
@@ -447,7 +481,6 @@ class _Controller {
           title: "Edit Quote Error",
           content: e.toString());
     }
-
   }
 
   void updateSong() async {
@@ -458,7 +491,8 @@ class _Controller {
     _state.formKey3.currentState.save();
     MyDialog.circularProgressStart(_state.context);
     try {
-      await FirebaseController.updateSong(_state.vault.docId, _state.vault.songs[_state.index]);
+      await FirebaseController.updateSong(
+          _state.vault.docId, _state.vault.songs[_state.index]);
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context); //pop form screen
       MyDialog.info(
@@ -475,14 +509,15 @@ class _Controller {
   }
 
   void updateStory() async {
-     if (!_state.formKey4.currentState.validate()) {
+    if (!_state.formKey4.currentState.validate()) {
       return;
     }
     _state.formKey4.currentState.save();
     MyDialog.circularProgressStart(_state.context);
 
     try {
-      await FirebaseController.updateStory(_state.vault.docId, _state.vault.stories[_state.index]);
+      await FirebaseController.updateStory(
+          _state.vault.docId, _state.vault.stories[_state.index]);
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context); //pop form screen
       MyDialog.info(
@@ -499,14 +534,15 @@ class _Controller {
   }
 
   void updateVideo() async {
-     if (!_state.formKey5.currentState.validate()) {
+    if (!_state.formKey5.currentState.validate()) {
       return;
     }
 
     _state.formKey5.currentState.save();
     MyDialog.circularProgressStart(_state.context);
     try {
-      await FirebaseController.updateVideo(_state.vault.docId, _state.vault.videos[_state.index]);
+      await FirebaseController.updateVideo(
+          _state.vault.docId, _state.vault.videos[_state.index]);
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context); //pop form screen
       MyDialog.info(

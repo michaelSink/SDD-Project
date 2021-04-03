@@ -218,6 +218,7 @@ class FirebaseController {
         .delete();
   }
 
+  //==========================start of loading the vault and all its contents==============================
   static Future<Vault> getVault(email) async {
     QuerySnapshot snapshot = await Firestore()
         .collection(Vault.COLLECTION)
@@ -229,6 +230,7 @@ class FirebaseController {
     List<Songs> songs = [];
     List<Videos> vids = [];
     List<Quotes> quotes = [];
+    List<Stories> stories = [];
     if (snapshot != null && snapshot.documents.length != 0) {
       var doc = snapshot.documents[0]; //get the first vault from the search
 
@@ -274,7 +276,8 @@ class FirebaseController {
           vids.add(v);
         }
       }
-       QuerySnapshot snap4 = await Firestore.instance
+      //query for quotes
+      QuerySnapshot snap4 = await Firestore.instance
           .collection(Vault.COLLECTION)
           .document(doc.documentID)
           .collection(Vault.QUOTES)
@@ -287,11 +290,27 @@ class FirebaseController {
           quotes.add(q);
         }
       }
-      result = Vault.deserialize(doc.data, doc.documentID, pics, songs, vids, quotes);
+      //queru for stories
+      QuerySnapshot snap5 = await Firestore.instance
+          .collection(Vault.COLLECTION)
+          .document(doc.documentID)
+          .collection(Vault.STORIES)
+          .getDocuments();
+      if (snap5 != null && snap5.documents.length != 0) {
+        var doc6;
+        for (int i = 0; i < snap5.documents.length; i++) {
+          doc6 = snap5.documents[i];
+          Stories s = Stories.deserialize(doc6.data, doc.documentID);
+          stories.add(s);
+        }
+      }
+      result = Vault.deserialize(
+          doc.data, doc.documentID, pics, songs, vids, quotes, stories);
       return result;
     }
     return null;
   }
+  //=============================end of load vault============================
 
   static Future<List<Journal>> getJournal(String email) async {
     QuerySnapshot snapshot = await Firestore()
@@ -340,6 +359,7 @@ class FirebaseController {
     return result;
   }
 
+  //=====================================start of functions for adding mementos============================================
   static Future<String> addQuote(String vaultId, Quotes q) async {
     print("Start add quote to Vault");
     DocumentReference doc = await Firestore.instance
@@ -350,31 +370,15 @@ class FirebaseController {
     return doc.documentID;
   }
 
-  static Future<void> addStory(String s, String email) async {
+  static Future<String> addStory(String vaultId, Stories s) async {
     print("Start addStory");
-    QuerySnapshot snapshot = await Firestore.instance
+    DocumentReference doc = await Firestore.instance
         .collection(Vault.COLLECTION)
-        .where(Vault.OWNER, isEqualTo: email)
-        .getDocuments();
-    List<dynamic> output = [];
-    if (snapshot != null && snapshot.documents.length != 0) {
-      output = snapshot.documents[0].data[Vault.STORIES];
-      //print(output);
-      output.add(s);
-      await Firestore.instance
-          .collection(Vault.COLLECTION)
-          .document(snapshot.documents[0].documentID)
-          .updateData({Vault.STORIES: output});
-    } else {
-      output.add(s);
-      await Firestore.instance
-          .collection(Vault.COLLECTION)
-          .document(snapshot.documents[0].documentID)
-          .updateData({Vault.STORIES: output});
-    }
-    return;
+        .document(vaultId)
+        .collection(Vault.STORIES)
+        .add(s.serialize());
+    return doc.documentID;
   }
-
 
   //2 functions for adding pic to storage, then adding information about pic to firestore, then firestore doc to vault array
   static Future<Map<String, String>> addPicToStorage(
@@ -426,6 +430,7 @@ class FirebaseController {
     print("Inside create vault");
     return doc.documentID;
   }
+  //=====================================================================================
 
   static Future<List<Contacts>> searchContacts(
       String email, String searchKey) async {
@@ -444,21 +449,14 @@ class FirebaseController {
     return result;
   }
 
-  static Future deleteStory(String email, int index) async {
-    QuerySnapshot snapshot = await Firestore.instance
-        .collection(Vault.COLLECTION)
-        .where(Vault.OWNER, isEqualTo: email)
-        .getDocuments();
-    List<dynamic> output = [];
-    //validate must have passed that there is a story to delete
-    if (snapshot != null && snapshot.documents.length != 0) {
-      output = snapshot.documents[0].data[Vault.STORIES];
-    }
-    output.removeAt(index);
+  //=================functions for deleting mementos==============================
+  static Future deleteStory(String vaultId, Stories s) async {
     await Firestore.instance
         .collection(Vault.COLLECTION)
-        .document(snapshot.documents[0].documentID)
-        .updateData({Vault.STORIES: output});
+        .document(vaultId)
+        .collection(Vault.SONGS)
+        .document(s.docId)
+        .delete();
     return;
   }
 
@@ -503,6 +501,7 @@ class FirebaseController {
         .delete();
     return;
   }
+  //===============================================================================
 
   static Future<String> addPersonalCare(PersonalCare personalCare) async {
     personalCare.updatedAt = DateTime.now();
@@ -562,7 +561,7 @@ class FirebaseController {
         .setData(s.serialize());
   }
 
-  static Future updateQuote(String vaultId, Quotes q)async{
+  static Future updateQuote(String vaultId, Quotes q) async {
     await Firestore.instance
         .collection(Vault.COLLECTION)
         .document(vaultId)
@@ -571,7 +570,93 @@ class FirebaseController {
         .setData(q.serialize());
   }
 
-  static Future updateStory(String vaultId, List<dynamic> stories)async{
-    await Firestore.instance.collection(Vault.COLLECTION).document(vaultId).updateData({"stories": stories});
+  static Future updateStory(String vaultId, Stories s) async {
+    await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.STORIES)
+        .document(s.docId)
+        .setData(s.serialize());
+  }
+
+  //==================================search functions for mementos====================================
+  static Future<List<Picture>> searchPics(String vaultId, String key) async {
+    QuerySnapshot snapshot = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.PICTURES)
+        .where(Picture.NAME, isEqualTo: key)
+        .getDocuments();
+    var result = <Picture>[];
+    if (snapshot != null && snapshot.documents.length != 0) {
+      for (var doc in snapshot.documents) {
+        result.add(Picture.deserialize(doc.data, doc.documentID));
+      }
+    }
+    return result;
+  }
+
+  static Future<List<Quotes>> searchQuotes(String vaultId, String key) async {
+    QuerySnapshot snapshot = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.QUOTES)
+        .where(Quotes.CATEGORY, isEqualTo: key)
+        .getDocuments();
+    var result = <Quotes>[];
+    if (snapshot != null && snapshot.documents.length != 0) {
+      for (var doc in snapshot.documents) {
+        result.add(Quotes.deserialize(doc.data, doc.documentID));
+      }
+    }
+    return result;
+  }
+
+  static Future<List<Songs>> searchSongs(String vaultId, String key) async {
+    QuerySnapshot snapshot = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.SONGS)
+        .where(Songs.CATEGORY, isEqualTo: key)
+        .getDocuments();
+    var result = <Songs>[];
+    if (snapshot != null && snapshot.documents.length != 0) {
+      for (var doc in snapshot.documents) {
+        result.add(Songs.deserialize(doc.data, doc.documentID));
+      }
+    }
+    return result;
+  }
+
+  static Future<List<Stories>> searchStories(String vaultId, String key) async {
+    QuerySnapshot snapshot = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.STORIES)
+        .where(Stories.TITLE, isEqualTo: key)
+        .getDocuments();
+    var result = <Stories>[];
+    if (snapshot != null && snapshot.documents.length != 0) {
+      for (var doc in snapshot.documents) {
+        result.add(Stories.deserialize(doc.data, doc.documentID));
+      }
+    }
+    return result;
+  }
+
+  static Future<List<Videos>> searchVideos(String vaultId, String key) async {
+    QuerySnapshot snapshot = await Firestore.instance
+        .collection(Vault.COLLECTION)
+        .document(vaultId)
+        .collection(Vault.VIDEOS)
+        .where(Videos.CATEGORY, isEqualTo: key)
+        .getDocuments();
+    var result = <Videos>[];
+    if (snapshot != null && snapshot.documents.length != 0) {
+      for (var doc in snapshot.documents) {
+        result.add(Videos.deserialize(doc.data, doc.documentID));
+      }
+    }
+    return result;
   }
 }

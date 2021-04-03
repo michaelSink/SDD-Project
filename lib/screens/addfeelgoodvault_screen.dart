@@ -61,7 +61,15 @@ class _AddFeelGoodVault extends State<AddFeelGoodVault> {
 class _Controller {
   _AddFeelGoodVault _state;
   _Controller(this._state);
-  String name, quote, song, story, video, songValue, videoValue, quoteValue;
+  String name,
+      quote,
+      song,
+      story,
+      video,
+      songValue,
+      videoValue,
+      quoteValue,
+      title;
 
   Widget getForm(int view) {
     switch (view) {
@@ -232,17 +240,35 @@ class _Controller {
       case 4:
         return Form(
           key: _state.formKey4,
-          child: Container(
-            width: MediaQuery.of(_state.context).size.width,
-            padding: EdgeInsets.all(5),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: "Story",
-              ),
-              autocorrect: true,
-              maxLines: 30,
-              validator: validateStory,
-              onSaved: saveStory,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  width: MediaQuery.of(_state.context).size.width,
+                  padding: EdgeInsets.all(5),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      hintText: "Title",
+                    ),
+                    autocorrect: true,
+                    validator: validateTitle,
+                    onSaved: saveTitle,
+                  ),
+                ),
+                Container(
+                  width: MediaQuery.of(_state.context).size.width,
+                  padding: EdgeInsets.all(5),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      hintText: "Story",
+                    ),
+                    autocorrect: true,
+                    maxLines: 25,
+                    validator: validateStory,
+                    onSaved: saveStory,
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -315,6 +341,10 @@ class _Controller {
     story = s;
   }
 
+  void saveTitle(String s) {
+    title = s;
+  }
+
   void saveVideo(String s) {
     video = s;
     videoValue;
@@ -332,7 +362,7 @@ class _Controller {
     if (s.isEmpty) {
       return "Please input a quote";
     }
-    if(quoteValue.isEmpty){
+    if (quoteValue.isEmpty) {
       return "Value hasn't been selected";
     }
     return null;
@@ -354,6 +384,13 @@ class _Controller {
     }
     if (s.length < 50) {
       return "Stories must be over 50 chars long";
+    }
+    return null;
+  }
+
+  String validateTitle(String s) {
+    if (s.isEmpty) {
+      return "Please type a title";
     }
     return null;
   }
@@ -441,7 +478,7 @@ class _Controller {
     }
     _state.formKey2.currentState.save();
     MyDialog.circularProgressStart(_state.context);
-    
+
     try {
       Quotes q = Quotes(quote: quote, category: quoteValue);
       q.docId = await FirebaseController.addQuote(_state.vault.docId, q);
@@ -498,7 +535,8 @@ class _Controller {
     MyDialog.circularProgressStart(_state.context);
 
     try {
-      await FirebaseController.addStory(story, _state.user);
+      var s = Stories(title: title, story: story);
+      s.docId = await FirebaseController.addStory(_state.vault.docId, s);
       MyDialog.circularProgressEnd(_state.context);
       Navigator.pop(_state.context);
       Navigator.pop(_state.context);
