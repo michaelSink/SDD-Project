@@ -52,12 +52,14 @@ class _AddFeelGoodVault extends State<AddFeelGoodVault> {
       ),
       appBar: AppBar(
         title: Text("Add new Item"),
+        actions: con.getAction(view),
       ),
       body: con.getForm(view),
     );
   }
 }
 
+//Let controller handle the load of switching bodies
 class _Controller {
   _AddFeelGoodVault _state;
   _Controller(this._state);
@@ -70,6 +72,20 @@ class _Controller {
       videoValue,
       quoteValue,
       title;
+  List<String> songCat = ["Happy", "Motivational", "Encouraging"];
+  List<String> quoteCat = ["Happy", "Motivational", "Encouraging"];
+  List<String> videoCat = ["Happy", "Energetic", "Peaceful"];
+
+  List<Widget> getAction(int view){
+    if(view == 2 || view == 3 || view == 5){
+      return [IconButton(icon: Icon(Icons.add_circle), onPressed: (){
+
+      })];
+    }
+    else{
+      return [Container()];
+    }
+  } 
 
   Widget getForm(int view) {
     switch (view) {
@@ -179,7 +195,7 @@ class _Controller {
                 width: MediaQuery.of(_state.context).size.width,
                 padding: EdgeInsets.all(5),
                 child: DropdownButton(
-                  items: <String>["Happy", "Motivational", "Encouraging"]
+                  items: quoteCat
                       .map((String value) {
                     return DropdownMenuItem(
                         child: new Text(value), value: value);
@@ -219,7 +235,7 @@ class _Controller {
                 width: MediaQuery.of(_state.context).size.width,
                 padding: EdgeInsets.all(5),
                 child: DropdownButton(
-                  items: <String>["Happy", "Energetic", "Peaceful"]
+                  items: songCat
                       .map((String value) {
                     return DropdownMenuItem(
                         child: new Text(value), value: value);
@@ -295,7 +311,7 @@ class _Controller {
                 width: MediaQuery.of(_state.context).size.width,
                 padding: EdgeInsets.all(5),
                 child: DropdownButton(
-                  items: <String>["Happy", "Energetic", "Peaceful"]
+                  items: videoCat
                       .map((String value) {
                     return DropdownMenuItem(
                         child: new Text(value), value: value);

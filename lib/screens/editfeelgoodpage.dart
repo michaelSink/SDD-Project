@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/screens/views/mydialog.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 

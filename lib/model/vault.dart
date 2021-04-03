@@ -1,14 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
-
 class Vault {
   static const COLLECTION = "vault";
-
   static const PICTURES = "pictures";
   static const QUOTES = "quotes";
   static const SONGS = "songs";
   static const STORIES = "stories";
   static const VIDEOS = "videos";
   static const OWNER = "owner";
+  static const PLAYLIST = "playlists";
 
   String owner;
   String docId;
@@ -17,6 +15,7 @@ class Vault {
   List<Picture> pictures;
   List<Quotes> quotes;
   List<Videos> videos;
+  List<dynamic> playlists;
 
   Vault({
     this.owner,
@@ -26,11 +25,15 @@ class Vault {
     this.stories,
     this.videos,
     this.docId,
-  }) {}
+    this.playlists,
+  }) {
+    this.playlists ??= ["Happy"];
+  }
 
   Map<String, dynamic> serialize() {
     return <String, dynamic>{
       OWNER: owner,
+      PLAYLIST: playlists,
     };
   }
 
@@ -38,6 +41,7 @@ class Vault {
     return Vault(
         docId: doc,
         owner: data[Vault.OWNER],
+        playlists: data[Vault.PLAYLIST],
         quotes: quotes,
         songs: songs,
         stories: stories,
