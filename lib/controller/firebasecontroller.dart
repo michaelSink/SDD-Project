@@ -13,6 +13,7 @@ import 'package:SDD_Project/model/prescription.dart';
 import 'package:SDD_Project/model/journal.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
 
 class FirebaseController {
   static Future signIn(String email, String password) async {
@@ -21,7 +22,25 @@ class FirebaseController {
     return auth.user;
   }
 
-    static Future<Map<String, String>> uploadStorage({
+  static Future<List<String>> getImageText(File image) async{
+
+    final inputImage = InputImage.fromFile(image);
+    TextDetector _textDetector = GoogleMlKit.instance.textDetector();
+
+    final text = await _textDetector.processImage(inputImage);
+    List<String> recognizedText = [];
+
+    for(TextBlock textBlob in text.textBlocks){
+      for(TextLine textLine in textBlob.textLines){
+        recognizedText.add(textLine.lineText);
+      }
+    }
+
+    return recognizedText;
+
+  }
+
+  static Future<Map<String, String>> uploadStorage({
     @required File image,
     String filePath,
     @required String uid,
@@ -161,6 +180,13 @@ class FirebaseController {
     return ref.documentID;
   }
 
+  static Future<void> updateFamilyHistory(MedicalHistory history) async {
+    await Firestore.instance
+        .collection(MedicalHistory.COLLECTION)
+        .document(history.docId)
+        .setData(history.serialize());
+  }
+
   static Future<List<MedicalHistory>> getFamilyHistory(String uid) async {
     QuerySnapshot querySnapshot = await Firestore.instance
         .collection(MedicalHistory.COLLECTION)
@@ -175,6 +201,13 @@ class FirebaseController {
       }
     }
     return results;
+  }
+
+  static Future<void> deleteHistory(String docId) async{
+    await Firestore.instance
+        .collection(MedicalHistory.COLLECTION)
+        .document(docId)
+        .delete();
   }
 
   static Future signOut() async {

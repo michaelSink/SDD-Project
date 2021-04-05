@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/prescription.dart';
 import 'package:SDD_Project/screens/prescriptionDetails_screen.dart';
+import 'package:SDD_Project/screens/views/mydialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'addprescription_screen.dart';
 
 class PrescriptionScreen extends StatefulWidget{
@@ -62,9 +66,40 @@ class _PrescriptionState extends State<PrescriptionScreen>{
               ),
             ),
           ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: con.addScreen,
+      floatingActionButton: Container(
+        color: Colors.blue[200],
+        child: PopupMenuButton<String>(
+          onSelected: con.addScreen,
+          itemBuilder: (context) => <PopupMenuEntry<String>>[
+            PopupMenuItem(
+              value: 'manual',
+              child: Row(
+                children: [
+                  Icon(Icons.add),
+                  Text('Manual Entry'),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'camera',
+              child: Row(
+                children: [
+                  Icon(Icons.photo_camera),
+                  Text('From Camera'),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'gallery',
+              child: Row(
+                children: [
+                  Icon(Icons.photo_album),
+                  Text('From Gallery'),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -76,10 +111,38 @@ class _Controller{
   _PrescriptionState _state;
   _Controller(this._state);
 
-  void addScreen() async{
+  void addScreen(String src) async{
+
+    List<String> recognizedText = [];
+
+    if(src != 'manual'){
+
+      try{
+
+        PickedFile _imageFile;
+        if (src == 'camera') {
+          _imageFile = await ImagePicker().getImage(source: ImageSource.camera);
+        } else if(src == 'gallery'){
+          _imageFile = await ImagePicker().getImage(source: ImageSource.gallery);
+        }
+        File _image = File(_imageFile.path);
+
+        recognizedText = await FirebaseController.getImageText(_image);
+
+      }catch(e){
+
+        MyDialog.info(
+          context: _state.context,
+          content: e.message ?? e.toString(),
+          title: "Error",
+        );
+
+      }
+
+    }
 
     await Navigator.pushNamed(_state.context, AddPrescriptionScreen.routeName,
-      arguments: {'user' : _state.user, 'prescriptions': _state.prescriptions});
+      arguments: {'user' : _state.user, 'prescriptions': _state.prescriptions, 'recognizedText' : recognizedText});
     _state.render((){});
 
   }

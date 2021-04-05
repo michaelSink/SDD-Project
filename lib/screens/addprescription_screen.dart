@@ -20,6 +20,7 @@ class _AddPrescriptionState extends State<AddPrescriptionScreen>{
   _Controller con;
   FirebaseUser user;
   List<Prescription> prescriptions;
+  List<String> recognizedText;
   var formKey = GlobalKey<FormState>();
 
   @override
@@ -34,6 +35,7 @@ class _AddPrescriptionState extends State<AddPrescriptionScreen>{
     Map arg = ModalRoute.of(context).settings.arguments;
     user ??= arg['user'];
     prescriptions ??= arg['prescriptions'];
+    recognizedText ??= arg['recognizedText'];
 
     return Scaffold(
       appBar: AppBar(
@@ -43,6 +45,13 @@ class _AddPrescriptionState extends State<AddPrescriptionScreen>{
             icon: Icon(Icons.check),
             onPressed: con.save,
           ),
+          recognizedText.length != 0 ? 
+          IconButton(
+            icon: Icon(Icons.bookmark), 
+            onPressed: () => MyDialog.buildList(context: context, text: recognizedText), 
+          )
+            :
+          Container(),
         ],
       ),
       body: Form(
