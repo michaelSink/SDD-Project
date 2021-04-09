@@ -20,15 +20,16 @@ class _ContactScreen extends State<ContactScreen> {
   var formKey = GlobalKey<FormState>();
   var searchKey = GlobalKey<FormState>();
   String user;
-  List<int> selectedIndex = [];
+  int selectedIndex;
   Map<int, String> contactsToDelete;
+  Contacts contactToEdit;
 
   render(fn) => setState(fn);
 
   //-----popup forms for the body-----//
 
   //form for new contact information
-  popupForm() {
+  popupForm(String mode) {
     showDialog(
       barrierDismissible: true,
       context: context,
@@ -58,6 +59,9 @@ class _ContactScreen extends State<ContactScreen> {
                             fillColor: Colors.white,
                             border: OutlineInputBorder(gapPadding: 20.0)),
                         autocorrect: false,
+                        initialValue: contactToEdit == null
+                            ? ""
+                            : contactToEdit.firstName,
                         onSaved: con.saveFirstName,
                         validator: con.validateFirstName,
                       ),
@@ -75,6 +79,8 @@ class _ContactScreen extends State<ContactScreen> {
                             fillColor: Colors.white,
                             border: OutlineInputBorder(gapPadding: 20.0)),
                         autocorrect: false,
+                        initialValue:
+                            contactToEdit == null ? "" : contactToEdit.lastName,
                         onSaved: con.saveLastName,
                         validator: con.validateLastName,
                       ),
@@ -92,6 +98,8 @@ class _ContactScreen extends State<ContactScreen> {
                             fillColor: Colors.white,
                             border: OutlineInputBorder(gapPadding: 20.0)),
                         autocorrect: false,
+                        initialValue:
+                            contactToEdit == null ? "" : contactToEdit.phoneNum,
                         keyboardType: TextInputType.number,
                         onSaved: con.savePhoneNum,
                         validator: con.validatePhoneNum,
@@ -110,16 +118,26 @@ class _ContactScreen extends State<ContactScreen> {
                             fillColor: Colors.white,
                             border: OutlineInputBorder(gapPadding: 20.0)),
                         autocorrect: false,
+                        initialValue:
+                            contactToEdit == null ? "" : contactToEdit.relation,
                         onSaved: con.saveRelation,
                         validator: con.validateRelation,
                       ),
                     ),
-                    ElevatedButton(
-                      child: Text("Submit"),
-                      onPressed: () {
-                        con.submit();
-                      }, //change later to submit
-                    ),
+                    mode == "add"
+                        ? ElevatedButton(
+                            child: Text("Submit"),
+                            onPressed: () {
+                              con.submit();
+                            },
+                          )
+                        : ElevatedButton(
+                            child: Text("Edit"),
+                            onPressed: () {
+                              con.update();
+                              setState(() {});
+                            },
+                          ),
                   ],
                 ),
               ),
@@ -176,27 +194,30 @@ class _ContactScreen extends State<ContactScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Contacts"),
-        actions: <Widget>[
-          Container(
-            padding: EdgeInsets.all(10),
-            width: 150.0,
-            child: Form(
-              key: searchKey,
-              child: TextFormField(
-                decoration: InputDecoration(
-                  hintText: "Search First Name",
-                  fillColor: Colors.white,
-                  filled: true,
+        actions: selectedIndex == null
+            ? <Widget>[
+                Container(
+                  padding: EdgeInsets.all(10),
+                  width: 150.0,
+                  child: Form(
+                    key: searchKey,
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        hintText: "Search First Name",
+                        fillColor: Colors.white,
+                        filled: true,
+                      ),
+                      autocorrect: false,
+                      onSaved: con.saveSearchKey,
+                    ),
+                  ),
                 ),
-                autocorrect: false,
-                onSaved: con.saveSearchKey,
-              ),
-            ),
-          ),
-          selectedIndex.length == 0
-              ? IconButton(icon: Icon(Icons.search), onPressed: con.search)
-              : IconButton(icon: Icon(Icons.delete), onPressed: con.delete),
-        ],
+                IconButton(icon: Icon(Icons.search), onPressed: con.search)
+              ]
+            : <Widget>[
+                IconButton(icon: Icon(Icons.edit), onPressed: con.edit),
+                IconButton(icon: Icon(Icons.delete), onPressed: con.delete)
+              ],
       ),
       body: contacts.length == 0
           ? Text("No Contacts, please add some")
@@ -230,7 +251,7 @@ class _ContactScreen extends State<ContactScreen> {
                             ),
                           ],
                         )),
-                    selected: selectedIndex.contains(index) ? true : false,
+                    selected: index == selectedIndex ? true : false,
                     selectedTileColor: Colors.blue[100],
                     onTap: () {
                       showDialog(
@@ -261,20 +282,20 @@ class _ContactScreen extends State<ContactScreen> {
                     },
                     onLongPress: () {
                       //uodated list of contacts selected for deletion
-                      selectedIndex.contains(index)
-                          ? selectedIndex.remove(index)
-                          : selectedIndex.add(index);
+                      selectedIndex == index
+                          ? selectedIndex = null
+                          : selectedIndex = index;
                       render(() {});
                     },
                   ),
                 ),
               ),
             ),
-      floatingActionButton: IconButton(
-        icon: Icon(Icons.add),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
         onPressed: () {
           //open up a popup form
-          popupForm();
+          popupForm("add");
         },
       ),
     );
@@ -396,22 +417,57 @@ class _Controller {
     }
   }
 
+  void update() async {
+    if (!_state.formKey.currentState.validate()) {
+      return;
+    }
+
+    _state.formKey.currentState.save();
+    MyDialog.circularProgressStart(_state.context);
+
+    try {
+      _state.contactToEdit = Contacts(
+          firstName: firstName,
+          lastName: lastName,
+          phoneNum: phoneNum,
+          owner: _state.contactToEdit.owner,
+          relation: relation,
+          docID: _state.contactToEdit.docID);
+      await FirebaseController.updateContact(_state.contactToEdit);
+      MyDialog.circularProgressEnd(_state.context);
+      Navigator.pop(_state.context);
+      _state.contacts.removeAt(_state.selectedIndex);
+      _state.contacts.insert(_state.selectedIndex, _state.contactToEdit);
+       MyDialog.info(
+          title: "Contact Updated",
+          context: _state.context,
+          content: "Contact successfully updated");
+    } catch (e) {
+      MyDialog.info(
+          title: "Contact Edit Error",
+          context: _state.context,
+          content: e.toString());
+      MyDialog.circularProgressEnd(_state.context);
+      return;
+    }
+    _state.render(() {
+      _state.selectedIndex = null;
+    });
+  }
+
   //deleting contacts from the index
   void delete() async {
-    if (_state.selectedIndex.length == 0) {
+    if (_state.selectedIndex == null) {
       return;
     }
     MyDialog.circularProgressStart(_state.context);
     try {
-      for (int i = 0; i < _state.selectedIndex.length; i++) {
-        await FirebaseController.deleteContacts(
-            _state.contacts.elementAt(_state.selectedIndex[i]));
-        _state.contacts.removeAt(_state.selectedIndex[i]);
-      }
-
+      await FirebaseController.deleteContacts(
+          _state.contacts.elementAt(_state.selectedIndex));
+      _state.contacts.removeAt(_state.selectedIndex);
       MyDialog.circularProgressEnd(_state.context);
       _state.render(() {
-        _state.selectedIndex = [];
+        _state.selectedIndex = null;
       });
       MyDialog.info(
           title: "Contact Deleted",
@@ -427,13 +483,21 @@ class _Controller {
     }
   }
 
+  void edit() async {
+    if (_state.selectedIndex == null) {
+      return;
+    }
+    _state.contactToEdit = _state.contacts.elementAt(_state.selectedIndex);
+    _state.popupForm("edit");
+  }
+
   void search() async {
     _state.searchKey.currentState.save();
-    
+
     List<Contacts> result;
-    if(searchKey == null || searchKey.trim().isEmpty){
-        result = await FirebaseController.getContacts(_state.user);
-    } else{
+    if (searchKey == null || searchKey.trim().isEmpty) {
+      result = await FirebaseController.getContacts(_state.user);
+    } else {
       String first = searchKey.substring(0, 1);
       String last = searchKey.substring(1);
       first = first.toUpperCase();
