@@ -141,8 +141,8 @@ class _FeelGoodVault extends State<FeelGoodVault> {
                 ],
               )
             : con.buildList(view),
-        floatingActionButton: IconButton(
-          icon: Icon(Icons.add),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
           onPressed: () {
             //open form to add new item to vault
             showDialog(

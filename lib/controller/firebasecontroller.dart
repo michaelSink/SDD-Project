@@ -693,4 +693,11 @@ class FirebaseController {
     }
     return result;
   }
+
+  static Future updateContact(Contacts c) async {
+    await Firestore.instance
+        .collection(Contacts.COLLECTION)
+        .document(c.docID)
+        .setData(c.serialize());
+  }
 }
