@@ -391,6 +391,9 @@ class _Controller {
     if (songValue.isEmpty) {
       return "Value hasn't been selected";
     }
+    if(!s.startsWith("http")){
+      return "Please enter a url starting with https";
+    }
     return null;
   }
 
@@ -417,6 +420,9 @@ class _Controller {
     }
     if (videoValue.isEmpty) {
       return "Value hasn't been selected";
+    }
+    if(!s.startsWith("http")){
+      return "Please enter a url starting with https";
     }
     return null;
   }

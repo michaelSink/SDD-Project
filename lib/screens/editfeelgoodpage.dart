@@ -216,7 +216,7 @@ class _Controller {
                 width: MediaQuery.of(_state.context).size.width,
                 padding: EdgeInsets.all(5),
                 child: DropdownButton(
-                  items: <String>["Happy", "Energetic", "Peaceful"]
+                  items: <String>["Happy", "Motivational", "Encouraging"]
                       .map((String value) {
                     return DropdownMenuItem(
                         child: new Text(value), value: value);

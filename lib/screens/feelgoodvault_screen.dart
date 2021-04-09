@@ -5,6 +5,7 @@ import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/screens/addfeelgoodvault_screen.dart';
 import 'package:SDD_Project/screens/editfeelgoodpage.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'views/mydialog.dart';
 
@@ -291,6 +292,9 @@ class _Controller {
                           : _state.indexToDelete = null;
                     });
                   },
+                  onTap: () async {
+                    await launch("${_state.vault.songs[index].name}");
+                  },
                   selected: _state.indexToDelete == index ? true : false,
                   selectedTileColor: Colors.blue[100],
                 );
@@ -349,6 +353,9 @@ class _Controller {
                           ? _state.indexToDelete = index
                           : _state.indexToDelete = null;
                     });
+                  },
+                  onTap: () async {
+                    await launch("${_state.vault.videos[index].name}");
                   },
                   selected: _state.indexToDelete == index ? true : false,
                   selectedTileColor: Colors.blue[100],
