@@ -1,24 +1,21 @@
 class Vault {
   static const COLLECTION = "vault";
-
   static const PICTURES = "pictures";
   static const QUOTES = "quotes";
   static const SONGS = "songs";
   static const STORIES = "stories";
   static const VIDEOS = "videos";
   static const OWNER = "owner";
+  static const PLAYLIST = "playlists";
 
   String owner;
   String docId;
   List<Songs> songs;
-  List<dynamic> stories;
+  List<Stories> stories;
   List<Picture> pictures;
-  List<dynamic> quotes;
+  List<Quotes> quotes;
   List<Videos> videos;
-
-  List<Songs> _songs;
-  List<String> _stories;
-
+  List<dynamic> playlists;
 
   Vault({
     this.owner,
@@ -28,26 +25,26 @@ class Vault {
     this.stories,
     this.videos,
     this.docId,
+    this.playlists,
   }) {
-    this.quotes ??= [];
-    this.stories ??= [];
+    this.playlists ??= ["Happy"];
   }
 
   Map<String, dynamic> serialize() {
     return <String, dynamic>{
       OWNER: owner,
-      QUOTES: quotes,
-      STORIES: stories,
+      PLAYLIST: playlists,
     };
   }
 
-  static Vault deserialize(data, String doc, List<Picture> pics, List<Songs> songs, List<Videos> vids) {
+  static Vault deserialize(data, String doc, List<Picture> pics, List<Songs> songs, List<Videos> vids, List<Quotes> quotes, List<Stories> stories) {
     return Vault(
         docId: doc,
         owner: data[Vault.OWNER],
-        quotes: data[Vault.QUOTES],
+        playlists: data[Vault.PLAYLIST],
+        quotes: quotes,
         songs: songs,
-        stories: data[Vault.STORIES],
+        stories: stories,
         videos: vids,
         pictures: pics,
     );
@@ -153,8 +150,69 @@ class Videos {
 
     static Videos deserialize(Map<String, dynamic> data, String doc){
     return Videos(
-      name: data[Songs.NAME],
-      category: data[Songs.CATEGORY],
+      name: data[Videos.NAME],
+      category: data[Videos.CATEGORY],
+      docId: doc,
+      );
+  }
+
+}
+
+class Quotes {
+  static const QUOTE = "quote";
+  static const CATEGORY = "category";
+
+  String quote;
+  String category;
+  String docId;
+
+  Quotes({
+    this.quote,
+    this.category,
+    this.docId,
+  }) {}
+
+    Map<String, dynamic> serialize(){
+    return <String, dynamic>{
+      QUOTE: quote,
+      CATEGORY: category,
+    };
+  }
+
+    static Quotes deserialize(Map<String, dynamic> data, String doc){
+    return Quotes(
+      quote: data[Quotes.QUOTE],
+      category: data[Quotes.CATEGORY],
+      docId: doc,
+      );
+  }
+}
+
+class Stories {
+  static const STORY = "story";
+  static const TITLE = "title";
+
+  String story;
+  String title;
+  String docId;
+
+  Stories({
+    this.title,
+    this.story,
+    this.docId,
+  }) {}
+
+    Map<String, dynamic> serialize(){
+    return <String, dynamic>{
+      TITLE: title,
+      STORY: story
+    };
+  }
+
+    static Stories deserialize(Map<String, dynamic> data, String doc){
+    return Stories(
+      title: data[Stories.TITLE],
+      story: data[Stories.STORY],
       docId: doc,
       );
   }

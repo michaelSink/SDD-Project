@@ -22,6 +22,7 @@ import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
 import 'screens/aboutpage_screen.dart';
 import 'screens/adddiagnosis_screen.dart';
 import 'screens/addeventpage_screen.dart';
+import 'screens/editfeelgoodpage.dart';
 import 'screens/prescription_screen.dart';
 import 'screens/addprescription_screen.dart';
 import 'screens/question_screen.dart';
@@ -70,10 +71,8 @@ class AppRoutes extends StatelessWidget{
         EditFamilyHistory.routeName: (context) => EditFamilyHistory(),
         QuestionFormScreen.routeName: (context) => QuestionFormScreen(),
         QuestionHomeScreen.routeName: (context) => QuestionHomeScreen(),
+        EditFeelGoodVault.routeName: (context) => EditFeelGoodVault(),
       }
-
     );
-
   }
-
 }

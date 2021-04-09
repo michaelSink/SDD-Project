@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/screens/addfeelgoodvault_screen.dart';
+import 'package:SDD_Project/screens/editfeelgoodpage.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'views/mydialog.dart';
 
@@ -66,17 +68,8 @@ class _FeelGoodVault extends State<FeelGoodVault> {
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Feel Good Vault"),
-          actions: <Widget>[
-            view != 0
-                ? IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      con.delete(view);
-                    })
-                : Container()
-          ],
-        ),
+            title: Text("Feel Good Vault"),
+            actions: con.actions(view, indexToDelete)),
         body: viewSelected == false
             ? Column(
                 children: <Widget>[
@@ -222,6 +215,8 @@ class _FeelGoodVault extends State<FeelGoodVault> {
 class _Controller {
   _FeelGoodVault _state;
   _Controller(this._state);
+  var searchKey = GlobalKey<FormState>();
+  String searchWord;
 
   Widget buildList(view) {
     Widget returnWidget;
@@ -263,7 +258,8 @@ class _Controller {
               itemCount: _state.vault.quotes.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  title: Text(_state.vault.quotes[index]),
+                  title: Text(_state.vault.quotes[index].quote),
+                  subtitle: Text(_state.vault.quotes[index].category),
                   contentPadding: EdgeInsets.all(5),
                   horizontalTitleGap: 2.0,
                   onLongPress: () {
@@ -296,6 +292,9 @@ class _Controller {
                           : _state.indexToDelete = null;
                     });
                   },
+                  onTap: () async {
+                    await launch("${_state.vault.songs[index].name}");
+                  },
                   selected: _state.indexToDelete == index ? true : false,
                   selectedTileColor: Colors.blue[100],
                 );
@@ -310,16 +309,17 @@ class _Controller {
               itemCount: _state.vault.stories.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  title: Text("Story #" + (index + 1).toString()),
+                  title: Text(_state.vault.stories[index].title),
                   subtitle: Text(
-                      _state.vault.stories[index].substring(0, 50) + "..."),
+                      _state.vault.stories[index].story.substring(0, 50) +
+                          "..."),
                   onTap: () {
                     showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
                             content: SingleChildScrollView(
-                                child: Text(_state.vault.stories[index])),
+                                child: Text(_state.vault.stories[index].story)),
                           );
                         });
                   },
@@ -353,6 +353,9 @@ class _Controller {
                           ? _state.indexToDelete = index
                           : _state.indexToDelete = null;
                     });
+                  },
+                  onTap: () async {
+                    await launch("${_state.vault.videos[index].name}");
                   },
                   selected: _state.indexToDelete == index ? true : false,
                   selectedTileColor: Colors.blue[100],
@@ -423,7 +426,8 @@ class _Controller {
     print("delete quote");
     MyDialog.circularProgressStart(_state.context);
     try {
-      await FirebaseController.deleteQuote(_state.user, _state.indexToDelete);
+      await FirebaseController.deleteQuote(
+          _state.vault.docId, _state.vault.quotes[_state.indexToDelete]);
       _state.vault.quotes.removeAt(_state.indexToDelete);
       MyDialog.circularProgressEnd(_state.context);
       _state.render(() {
@@ -462,7 +466,8 @@ class _Controller {
     print("delete story at " + _state.indexToDelete.toString());
     MyDialog.circularProgressStart(_state.context);
     try {
-      await FirebaseController.deleteStory(_state.user, _state.indexToDelete);
+      await FirebaseController.deleteStory(
+          _state.vault.docId, _state.vault.stories[_state.indexToDelete]);
       _state.vault.stories.removeAt(_state.indexToDelete);
       MyDialog.circularProgressEnd(_state.context);
       _state.render(() {
@@ -495,5 +500,114 @@ class _Controller {
           title: "Delete Video Error",
           content: e.toString());
     }
+  }
+
+  //action buttons on the appbar
+  List<Widget> actions(int view, int index) {
+    if (view == 0) {
+      return [Container()];
+    } else if (index != null) {
+      return [
+        IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () async {
+              await Navigator.pushNamed(
+                  _state.context, EditFeelGoodVault.routeName, arguments: {
+                'user': _state.user,
+                'view': view,
+                'index': index,
+                'vault': _state.vault
+              });
+              _state.render(() {});
+            }),
+        IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              delete(view);
+            })
+      ];
+    } else {
+      return [
+        Container(
+          padding: EdgeInsets.all(10),
+          width: 150.0,
+          child: Form(
+            key: searchKey,
+            child: TextFormField(
+              decoration: InputDecoration(
+                hintText: toSearch(view),
+                fillColor: Colors.white,
+                filled: true,
+              ),
+              autocorrect: false,
+              onSaved: saveSearchWord,
+            ),
+          ),
+        ),
+        IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              search(view);
+            })
+      ];
+    }
+  }
+
+  String toSearch(int view){
+    if(view == 1){
+      return "Search Name";
+    }
+    else if(view == 4){
+      return "Search Title";
+    }
+    else return "Search Type";
+  }
+
+  void saveSearchWord(String s) {
+    searchWord = s;
+  }
+
+  void search(int view) async {
+    searchKey.currentState.save();
+
+    List<Picture> pics;
+    List<Quotes> quotes;
+    List<Songs> songs;
+    List<Stories> stories;
+    List<Videos> videos;
+
+    MyDialog.circularProgressStart(_state.context);
+    try{
+    if (searchKey == null || searchWord.trim().isEmpty) {
+       _state.vault = await FirebaseController.getVault(_state.user);
+    } else 
+    {
+      switch(view){
+        case 1: pics = await FirebaseController.searchPics(_state.vault.docId, searchWord);
+        _state.vault.pictures = pics;
+        break;
+        case 2: quotes = await FirebaseController.searchQuotes(_state.vault.docId, searchWord);
+        _state.vault.quotes = quotes;
+        break;
+        case 3: songs = await FirebaseController.searchSongs(_state.vault.docId, searchWord);
+        _state.vault.songs = songs;
+        break;
+        case 4: stories = await FirebaseController.searchStories(_state.vault.docId, searchWord);
+        _state.vault.stories = stories;
+        break;
+        case 5: videos = await FirebaseController.searchVideos(_state.vault.docId, searchWord);
+        _state.vault.videos = videos;
+        break;
+      }
+    }
+     MyDialog.circularProgressEnd(_state.context);
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+          context: _state.context,
+          title: "Search Error",
+          content: e.toString());
+    }
+    _state.render((){});
   }
 }
