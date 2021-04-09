@@ -1,5 +1,4 @@
 import 'package:SDD_Project/controller/aboutdb.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class AboutPageScreen extends StatefulWidget {

@@ -316,6 +316,6 @@ class _Controller {
   }
 
   void calender() {
-    Navigator.pushNamed(_state.context, CalenderScreen.routeName);
+    Navigator.pushNamed(_state.context, CalenderScreen.routeName, arguments: {'user': _state.user});
   }
 }

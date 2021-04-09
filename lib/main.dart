@@ -27,6 +27,7 @@ import 'screens/prescription_screen.dart';
 import 'screens/addprescription_screen.dart';
 import 'screens/question_screen.dart';
 import 'screens/questionhome_screen.dart';
+import 'screens/reset_password_screen.dart';
 
 void main(){
 
@@ -72,6 +73,7 @@ class AppRoutes extends StatelessWidget{
         QuestionFormScreen.routeName: (context) => QuestionFormScreen(),
         QuestionHomeScreen.routeName: (context) => QuestionHomeScreen(),
         EditFeelGoodVault.routeName: (context) => EditFeelGoodVault(),
+        ResetPasswordScreen.routeName: (context) => ResetPasswordScreen(),
       }
     );
   }
