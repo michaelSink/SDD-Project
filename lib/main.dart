@@ -24,6 +24,8 @@ import 'screens/adddiagnosis_screen.dart';
 import 'screens/addeventpage_screen.dart';
 import 'screens/prescription_screen.dart';
 import 'screens/addprescription_screen.dart';
+import 'screens/question_screen.dart';
+import 'screens/questionhome_screen.dart';
 
 void main(){
 
@@ -66,7 +68,8 @@ class AppRoutes extends StatelessWidget{
         AddLocationScreen.routeName: (context) => AddLocationScreen(),
         AddFeelGoodVault.routeName: (context) => AddFeelGoodVault(),
         EditFamilyHistory.routeName: (context) => EditFamilyHistory(),
-
+        QuestionFormScreen.routeName: (context) => QuestionFormScreen(),
+        QuestionHomeScreen.routeName: (context) => QuestionHomeScreen(),
       }
 
     );
