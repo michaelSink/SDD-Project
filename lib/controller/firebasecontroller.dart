@@ -5,6 +5,7 @@ import 'package:SDD_Project/model/location.dart';
 import 'package:SDD_Project/model/medicalHistory.dart';
 import 'package:SDD_Project/model/personalcare.dart';
 import 'package:SDD_Project/model/vault.dart';
+import 'package:SDD_Project/model/warningSign.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:SDD_Project/model/contacts.dart';
@@ -53,6 +54,43 @@ class FirebaseController {
     var download = await task.onComplete;
     String url = await download.ref.getDownloadURL();
     return {'url': url, 'path': filePath};
+  }
+
+  static Future<String> addWarningSign(WarningSign sign) async{
+    DocumentReference ref = await Firestore.instance
+                              .collection(WarningSign.COLLECTION)
+                              .add(sign.serialize());
+
+    return ref.documentID;
+  }
+
+  static Future<void> updateWarningSign(WarningSign sign) async{
+    await Firestore.instance
+      .collection(WarningSign.COLLECTION)
+      .document(sign.docId)
+      .setData(sign.serialize());
+  }
+
+  static Future<void> deleteWarningSign(String docId) async{
+    await Firestore.instance
+      .collection(WarningSign.COLLECTION)
+      .document(docId)
+      .delete();
+  }
+
+  static Future<List<WarningSign>> getWarningSigns(String uid) async{
+     QuerySnapshot querySnapshot = await Firestore.instance
+        .collection(WarningSign.COLLECTION)
+        .where(WarningSign.CREATED_BY, isEqualTo: uid)
+        .orderBy(WarningSign.RANK)
+        .getDocuments();
+    var results = <WarningSign>[];
+    if (querySnapshot != null && querySnapshot.documents.length != 0) {
+      for (var doc in querySnapshot.documents) {
+        results.add(WarningSign.deserialize(doc.data, doc.documentID));
+      }
+    }
+    return results;
   }
 
   static Future<String> addLocation(Location location) async {

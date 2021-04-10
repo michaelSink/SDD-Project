@@ -4,6 +4,7 @@ import 'package:SDD_Project/model/journal.dart';
 import 'package:SDD_Project/model/personalcare.dart';
 import 'package:SDD_Project/model/location.dart';
 import 'package:SDD_Project/model/vault.dart';
+import 'package:SDD_Project/model/warningSign.dart';
 import 'package:SDD_Project/screens/calender_screen.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
@@ -16,10 +17,12 @@ import 'package:SDD_Project/screens/location_screen.dart';
 import 'package:SDD_Project/screens/prescription_screen.dart';
 import 'package:SDD_Project/screens/questionhome_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
+import 'package:SDD_Project/screens/warningsigns_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:SDD_Project/screens/hotline_screen.dart';
 import 'package:SDD_Project/screens/views/myimageview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/firebasecontroller.dart';
 import 'aboutpage_screen.dart';
 import 'journal_screen.dart';
@@ -85,6 +88,11 @@ class _HomeState extends State<HomeScreen> {
                 leading: Icon(Icons.exit_to_app),
                 title: Text('Question Form'),
                 onTap: con.questionForm,
+              ),
+              ListTile(
+                leading: Icon(Icons.warning),
+                title: Text('Set Warning Signs'),
+                onTap: con.warningScreen,
               ),
             ],
           ),
@@ -229,6 +237,22 @@ class _Controller {
     }
   }
 
+  void warningScreen() async{
+    try{
+
+      List<WarningSign> signs = await FirebaseController.getWarningSigns(_state.user.uid);
+
+      await Navigator.pushNamed(_state.context, WarningSigns.routeName,
+        arguments: {'user' : _state.user, 'signs' : signs});
+    }catch(e){
+      MyDialog.info(
+        title: 'Error',
+        context: _state.context,
+        content: e.toString()
+      );
+    }
+  }
+
   void hotlineScreen() async {
     try {
       List<Hotline> hotlines =
@@ -246,6 +270,8 @@ class _Controller {
 
   void signOut() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setBool('remember', false);
       await FirebaseController.signOut();
     } catch (e) {
       print('signOut exception: ${e.message}');

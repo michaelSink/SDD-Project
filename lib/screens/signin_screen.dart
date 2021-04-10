@@ -1,11 +1,11 @@
 import 'package:SDD_Project/controller/Authentication.dart';
 import 'package:SDD_Project/controller/firebasecontroller.dart';
-import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/home_screen.dart';
 import 'package:SDD_Project/screens/signup_screen.dart';
 import 'package:SDD_Project/screens/views/mydialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   static const routeName = './signInScreen';
@@ -20,11 +20,14 @@ class _SignInState extends State<SignInScreen> {
   _Controller con;
   var formKey = GlobalKey<FormState>();
   FirebaseUser user;
+  bool remember = false;
+  var prefs;
 
   @override
   void initState() {
     super.initState();
     con = _Controller(this);
+    con.checkCredentials();
   }
 
   void render(fn) => setState(fn);
@@ -73,6 +76,16 @@ class _SignInState extends State<SignInScreen> {
               ),
               SizedBox(
                 height: 15,
+              ),
+              Row(
+                children: [
+                  Text("Remember Me"),
+                  Checkbox(value: remember, onChanged: (value){
+                    setState(() {
+                      remember = value;
+                    });
+                  }),
+                ],
               ),
               Container(
               width: 350.0,
@@ -150,6 +163,14 @@ class _Controller {
 
     _state.formKey.currentState.save();
 
+    if(_state.remember){
+      _state.prefs.setBool('remember', true);
+      _state.prefs.setString('username', email);
+      _state.prefs.setString('password', password);
+    }else{
+      _state.prefs.setBool('remember', false);
+    }
+
     MyDialog.circularProgressStart(_state.context);
     FirebaseUser user;
     try {
@@ -169,6 +190,32 @@ class _Controller {
 
     Navigator.pushReplacementNamed(_state.context, HomeScreen.routeName,
         arguments: {'user': user});
+  }
+
+  void checkCredentials() async{
+    _state.prefs = await SharedPreferences.getInstance();
+
+    _state.remember = _state.prefs.getBool('remember') ?? false;
+
+    if(_state.remember){
+      
+      MyDialog.circularProgressStart(_state.context);
+
+      String userName = _state.prefs.getString('username');
+      String password = _state.prefs.getString('password');
+
+      FirebaseUser user;
+
+      try{
+        user = await FirebaseController.signIn(userName, password);
+        MyDialog.circularProgressEnd(_state.context);
+        Navigator.pushReplacementNamed(_state.context, HomeScreen.routeName,
+          arguments: {'user': user});
+      }catch(e){
+        MyDialog.circularProgressEnd(_state.context);
+      }
+
+    }
   }
 
   String validatorEmail(String value) {
