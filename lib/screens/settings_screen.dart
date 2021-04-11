@@ -190,6 +190,7 @@ class _Controller{
   File imageFile;
   String email;
   String displayName;
+  bool submitted = false;
 
   void home() async{
     await Navigator.pushNamed(_state.context, HomeScreen.routeName,
@@ -204,6 +205,7 @@ class _Controller{
     try {
 
       if(imageFile != null){
+        submitted =  true;
         await FirebaseController.updateProfilePicture(
           image: imageFile, 
           user: _state.user
@@ -211,6 +213,7 @@ class _Controller{
       }
 
       if(displayName.trim().isNotEmpty){
+        submitted =  true;
         await FirebaseController.updateDisplayName(
           displayName: displayName, 
           user: _state.user
@@ -218,16 +221,19 @@ class _Controller{
       }
 
       if(this.email.isNotEmpty){
+        submitted =  true;
         await FirebaseController.updateEmail(user: _state.user, email: email);
       }
 
-      await MyDialog.infoFuture(
-        context: _state.context,
-        title: "Success",
-        content: "Your profile was updated successfully!\n You will now be signed out.",
-      );
+      if(submitted){
+        await MyDialog.infoFuture(
+          context: _state.context,
+          title: "Success",
+          content: "Your profile was updated successfully!\n You will now be signed out.",
+        );
 
-      Navigator.pushReplacementNamed(_state.context, SignInScreen.routeName);
+        Navigator.pushReplacementNamed(_state.context, SignInScreen.routeName);
+      }
 
     } catch (e) {
       MyDialog.info(
@@ -261,7 +267,7 @@ class _Controller{
     if (value == null ||
         (!value.contains('@') ||
                 !value.contains('.') ||
-                (value.split('@').length != 2)) &&
+                (value.split('@').length != 1)) &&
             value.length != 0) {
       return 'Invalid email address';
     }

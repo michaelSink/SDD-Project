@@ -290,6 +290,11 @@ class _Controller{
   void deleteWarning() async{
     try{
       await FirebaseController.deleteWarningSign(_state.signs[_state.selectedIndex].docId);
+        MyDialog.info(
+          title: "Success",
+          context: _state.context,
+          content: "The warning sign was successfully deleted!",
+        );
       _state.render((){
         _state.signs.removeAt(_state.selectedIndex);
         _state.selectedIndex = -1;
