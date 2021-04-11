@@ -4,6 +4,9 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <activity
+        android:showWhenLocked="true"
+        android:turnScreenOn="true">
     <application>
     <meta-data
         android:name="com.google.mlkit.vision.DEPENDENCIES"
