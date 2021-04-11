@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'home_screen.dart';
 import 'signin_screen.dart';
 import 'views/mydialog.dart';
 
@@ -162,6 +163,22 @@ class _SettingsScreenState extends State<SettingsScreen>{
           ),
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+              backgroundColor: Colors.grey,
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
+              backgroundColor: Colors.grey,
+            ),
+          ],
+          currentIndex: 1,
+          onTap: (value) => value == 0 ? con.home(): null,
+        ),
     );
   }
 }
@@ -173,6 +190,11 @@ class _Controller{
   File imageFile;
   String email;
   String displayName;
+
+  void home() async{
+    await Navigator.pushNamed(_state.context, HomeScreen.routeName,
+                arguments: {'user' : _state.user});
+  }
 
   void save() async {
     if (!(_state.formKey.currentState.validate())) return;
