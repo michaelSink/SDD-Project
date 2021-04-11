@@ -54,7 +54,7 @@ class AppRoutes extends StatelessWidget{
 
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.lightBlue,
         textTheme: AppTheme.textTheme,
       ),
       initialRoute: SignInScreen.routeName,
