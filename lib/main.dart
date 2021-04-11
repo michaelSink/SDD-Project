@@ -13,6 +13,7 @@ import 'package:SDD_Project/screens/diagnosis_screen.dart';
 import 'package:SDD_Project/screens/journal_screen.dart';
 import 'package:SDD_Project/screens/location_screen.dart';
 import 'package:SDD_Project/screens/prescriptionDetails_screen.dart';
+import 'package:SDD_Project/screens/settings_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:SDD_Project/screens/signup_screen.dart';
 import 'package:SDD_Project/screens/nativeContacts_screen.dart';
@@ -76,6 +77,7 @@ class AppRoutes extends StatelessWidget{
         EditFeelGoodVault.routeName: (context) => EditFeelGoodVault(),
         WarningSigns.routeName: (context) => WarningSigns(),
         ResetPasswordScreen.routeName: (context) => ResetPasswordScreen(),
+        SettingsScreen.routeName: (context) => SettingsScreen(),
       }
     );
   }
