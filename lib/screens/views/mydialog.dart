@@ -37,6 +37,24 @@ class MyDialog {
     );
   }
 
+  static Future<void> infoFuture({BuildContext context, String title, String content}) async {
+    await showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(content),
+            actions: [
+              FlatButton(
+                child: Text('Ok'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          );
+        });
+  }
+
   static List<Widget> buildWidget(BuildContext context, List<String> text){
     List<Widget> a = [];
     a.add(Text(

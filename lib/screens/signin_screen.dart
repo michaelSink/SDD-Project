@@ -34,115 +34,118 @@ class _SignInState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Sign In"),
-      ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  'Personal Care',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                ),
-                keyboardType: TextInputType.emailAddress,
-                autocorrect: false,
-                validator: con.validatorEmail,
-                onSaved: con.onSavedEmail,
-              ),
-              SizedBox(
-                height: 7.5,
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                ),
-                obscureText: true,
-                autocorrect: false,
-                validator: con.validatorPassword,
-                onSaved: con.onSavedPassword,
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Row(
-                children: [
-                  Text("Remember Me"),
-                  Checkbox(value: remember, onChanged: (value){
-                    setState(() {
-                      remember = value;
-                    });
-                  }),
-                ],
-              ),
-              Container(
-              width: 350.0,
-              height: 60.0,
-              padding: const EdgeInsets.only(top: 16.0),
-              child: RaisedButton(
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Sign In"),
+        ),
+        body: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16.0),
                   child: Text(
-                    'Sign In',
-                    style: TextStyle(fontSize: 20.0, color: Colors.white),
+                    'Personal Care',
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                   ),
-                  color: Colors.blue,
-                  onPressed: con.signIn,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0)),
                 ),
-              ),
-              Container(
+                SizedBox(
+                  height: 15,
+                ),
+                TextFormField(
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  autocorrect: false,
+                  validator: con.validatorEmail,
+                  onSaved: con.onSavedEmail,
+                ),
+                SizedBox(
+                  height: 7.5,
+                ),
+                TextFormField(
+                  decoration: InputDecoration(
+                    hintText: 'Password',
+                  ),
+                  obscureText: true,
+                  autocorrect: false,
+                  validator: con.validatorPassword,
+                  onSaved: con.onSavedPassword,
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  children: [
+                    Text("Remember Me"),
+                    Checkbox(value: remember, onChanged: (value){
+                      setState(() {
+                        remember = value;
+                      });
+                    }),
+                  ],
+                ),
+                Container(
                 width: 350.0,
                 height: 60.0,
                 padding: const EdgeInsets.only(top: 16.0),
-                // ignore: deprecated_member_use
                 child: RaisedButton(
-                  child: Text(
-                    'Sign In With Google',
-                    style: TextStyle(fontSize: 20.0, color: Colors.white),
+                    child: Text(
+                      'Sign In',
+                      style: TextStyle(fontSize: 20.0, color: Colors.white),
+                    ),
+                    color: Colors.blue,
+                    onPressed: con.signIn,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0)),
                   ),
-                  color: Colors.blue,
-                  onPressed: () {
-                    signInWithGoogle().then((user) async {
-                      this.user = user;
-                      print('========google sign in start');
-                      var personalCare =
-                          await FirebaseController.getPersonalCare(user.email);
-                      print('========google call');
-                      Navigator.pushReplacementNamed(
-                          context, HomeScreen.routeName, arguments: {
-                        'user': user,
-                        'personalCareList': personalCare
+                ),
+                Container(
+                  width: 350.0,
+                  height: 60.0,
+                  padding: const EdgeInsets.only(top: 16.0),
+                  // ignore: deprecated_member_use
+                  child: RaisedButton(
+                    child: Text(
+                      'Sign In With Google',
+                      style: TextStyle(fontSize: 20.0, color: Colors.white),
+                    ),
+                    color: Colors.blue,
+                    onPressed: () {
+                      signInWithGoogle().then((user) async {
+                        this.user = user;
+                        print('========google sign in start');
+                        var personalCare =
+                            await FirebaseController.getPersonalCare(user.email);
+                        print('========google call');
+                        Navigator.pushReplacementNamed(
+                            context, HomeScreen.routeName, arguments: {
+                          'user': user,
+                          'personalCareList': personalCare
+                        });
+                        print('========google sign in finish');
                       });
-                      print('========google sign in finish');
-                    });
-                  },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0)),
+                    },
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0)),
+                  ),
                 ),
-              ),
-              SizedBox(
-                height: 30.0,
-              ),
-              FlatButton(
-                onPressed: con.signUp,
-                child: Text(
-                  'No account yet? Sign Up',
-                  style: TextStyle(fontSize: 15.0),
+                SizedBox(
+                  height: 30.0,
                 ),
-              ),
-            ],
+                FlatButton(
+                  onPressed: con.signUp,
+                  child: Text(
+                    'No account yet? Sign Up',
+                    style: TextStyle(fontSize: 15.0),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

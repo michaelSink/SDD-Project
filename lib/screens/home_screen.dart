@@ -26,6 +26,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/firebasecontroller.dart';
 import 'aboutpage_screen.dart';
 import 'journal_screen.dart';
+import 'settings_screen.dart';
 import 'signin_screen.dart';
 import 'views/mydialog.dart';
 
@@ -93,6 +94,11 @@ class _HomeState extends State<HomeScreen> {
                 leading: Icon(Icons.warning),
                 title: Text('Set Warning Signs'),
                 onTap: con.warningScreen,
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('Settings'),
+                onTap: con.settings,
               ),
             ],
           ),
@@ -325,6 +331,11 @@ class _Controller {
         title: 'Error loading Journal Screen',
       );
     }
+  }
+
+  void settings() async{
+    await Navigator.pushNamed(_state.context, SettingsScreen.routeName,
+              arguments: {'user' : _state.user});
   }
 
       // read all question's from firebase

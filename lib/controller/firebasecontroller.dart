@@ -17,11 +17,11 @@ import 'package:google_ml_kit/google_ml_kit.dart';
 
 class FirebaseController {
   static Future signIn(String email, String password) async {
+
     AuthResult auth = await FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password);
     return auth.user;
   }
-
 
   static Future<List<String>> getImageText(File image) async{
 
@@ -54,6 +54,41 @@ class FirebaseController {
     var download = await task.onComplete;
     String url = await download.ref.getDownloadURL();
     return {'url': url, 'path': filePath};
+  }
+
+  static Future<void> updateEmail({
+    @required FirebaseUser user,
+    @required String email,
+  }) async{
+    await user.updateEmail(email);
+  }
+
+  static Future<void> updateProfilePicture({
+    @required File image,
+    @required FirebaseUser user,
+  })async {
+    UserUpdateInfo updateInfo = UserUpdateInfo();
+
+    String filePath = 'userPhotos/' + user.uid + '/' + user.uid;
+    StorageUploadTask uploadTask =
+        FirebaseStorage.instance.ref().child(filePath).putFile(image);
+
+    var download = await uploadTask.onComplete;
+    String url = await download.ref.getDownloadURL();
+
+    updateInfo.photoUrl = url;
+
+    await user.updateProfile(updateInfo);
+  }
+
+  static Future<void> updateDisplayName({
+    @required String displayName,
+    @required FirebaseUser user,
+  }) async {
+      UserUpdateInfo updateInfo = UserUpdateInfo();
+      updateInfo.displayName = displayName;
+
+      await user.updateProfile(updateInfo);
   }
 
   static Future<String> addWarningSign(WarningSign sign) async{
