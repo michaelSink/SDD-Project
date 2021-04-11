@@ -526,7 +526,7 @@ class FirebaseController {
     await Firestore.instance
         .collection(Vault.COLLECTION)
         .document(vaultId)
-        .collection(Vault.SONGS)
+        .collection(Vault.STORIES)
         .document(s.docId)
         .delete();
     return;
@@ -536,7 +536,7 @@ class FirebaseController {
     await Firestore.instance
         .collection(Vault.COLLECTION)
         .document(vaultId)
-        .collection(Vault.SONGS)
+        .collection(Vault.QUOTES)
         .document(q.docId)
         .delete();
     return;
