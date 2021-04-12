@@ -1,5 +1,6 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/hotline.dart';
+import 'package:SDD_Project/model/mental_health.dart';
 import 'package:SDD_Project/model/warningSign.dart';
 import 'package:SDD_Project/screens/warningsigns_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'home_screen.dart';
 import 'hotline_screen.dart';
+import 'mental_health_screen.dart';
 import 'settings_screen.dart';
 import 'views/mydialog.dart';
 
@@ -85,6 +87,26 @@ class _SelfHelpState extends State<SelfHelp>{
               ),
             ),
           ),
+          InkWell(
+            onTap: con.mentalHealthScreen,
+            child: Card(
+              elevation: 6,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.warning_outlined, size: 35,),
+                  SizedBox(height: 10,),
+                  Text(
+                    "Mental Health",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -132,6 +154,22 @@ class _Controller {
         context: _state.context,
         title: 'Error getting hotlines',
         content: e.message ?? e.toString(),
+      );
+    }
+  }
+
+    void mentalHealthScreen() async {
+    try {
+      List<MentalHealth> mentalHealth =
+          await FirebaseController.getMentalHealth(_state.user.uid);
+
+      await Navigator.pushNamed(_state.context, MentalHealthScreen.routeName,
+          arguments: {'user': _state.user, 'mentalHealth': mentalHealth});
+    } catch (e) {
+      MyDialog.info(
+        context: _state.context,
+        content: e.toString(),
+        title: 'Error',
       );
     }
   }

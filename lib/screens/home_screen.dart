@@ -360,7 +360,6 @@ class _Controller {
         title: 'Error',
       );
     }
-    ;
   }
 
   void hotlineScreen() async {
