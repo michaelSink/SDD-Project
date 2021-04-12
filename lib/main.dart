@@ -20,9 +20,12 @@ import 'package:SDD_Project/screens/editDiagnosis_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
 import 'screens/aboutpage_screen.dart';
+import 'screens/addMentalHealth.dart';
 import 'screens/adddiagnosis_screen.dart';
 import 'screens/addeventpage_screen.dart';
+import 'screens/editMentalHealth_screen.dart';
 import 'screens/editfeelgoodpage.dart';
+import 'screens/mental_health_screen.dart';
 import 'screens/prescription_screen.dart';
 import 'screens/addprescription_screen.dart';
 import 'screens/question_screen.dart';
@@ -74,6 +77,9 @@ class AppRoutes extends StatelessWidget{
         QuestionHomeScreen.routeName: (context) => QuestionHomeScreen(),
         EditFeelGoodVault.routeName: (context) => EditFeelGoodVault(),
         ResetPasswordScreen.routeName: (context) => ResetPasswordScreen(),
+        EditMentalHealth.routeName: (context) => EditMentalHealth(),
+        AddMentalHealth.routeName: (context) => AddMentalHealth(),
+        MentalHealthScreen.routeName: (context) => MentalHealthScreen(),
       }
     );
   }

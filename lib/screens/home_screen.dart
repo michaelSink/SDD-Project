@@ -1,6 +1,7 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/contacts.dart';
 import 'package:SDD_Project/model/journal.dart';
+import 'package:SDD_Project/model/mental_health.dart';
 import 'package:SDD_Project/model/personalcare.dart';
 import 'package:SDD_Project/model/location.dart';
 import 'package:SDD_Project/model/vault.dart';
@@ -23,6 +24,7 @@ import 'package:SDD_Project/screens/views/myimageview.dart';
 import '../controller/firebasecontroller.dart';
 import 'aboutpage_screen.dart';
 import 'journal_screen.dart';
+import 'mental_health_screen.dart';
 import 'signin_screen.dart';
 import 'views/mydialog.dart';
 
@@ -38,7 +40,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeState extends State<HomeScreen> {
   _Controller con;
   FirebaseUser user;
-    List<PersonalCare> personalCare;
+  List<PersonalCare> personalCare;
 
   @override
   void initState() {
@@ -89,72 +91,81 @@ class _HomeState extends State<HomeScreen> {
             ],
           ),
         ),
-        body: Column(
-          children: [
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Contacts'),
-                onTap: con.accessContacts,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.person),
+                  title: Text('Contacts'),
+                  onTap: con.accessContacts,
+                ),
               ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.local_hospital),
-                title: Text('Prescriptions'),
-                onTap: con.prescriptionScreen,
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.local_hospital),
+                  title: Text('Prescriptions'),
+                  onTap: con.prescriptionScreen,
+                ),
               ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.phone),
-                title: Text('Hotlines'),
-                onTap: con.hotlineScreen,
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.phone),
+                  title: Text('Hotlines'),
+                  onTap: con.hotlineScreen,
+                ),
               ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.history),
-                title: Text('Diagnoses'),
-                onTap: con.diagnosisScreen,
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.history),
+                  title: Text('Diagnoses'),
+                  onTap: con.diagnosisScreen,
+                ),
               ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.people),
-                title: Text('Family History'),
-                onTap: con.familyScreen,
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.history),
+                  title: Text('Mental Health'),
+                  onTap: con.mentalHealthScreen,
+                ),
               ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.wb_sunny),
-                title: Text('Feel Good Vault'),
-                onTap: con.accessVault,
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.people),
+                  title: Text('Family History'),
+                  onTap: con.familyScreen,
+                ),
               ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.book),
-                title: Text('Journal'),
-                onTap: con.journalScreen,
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.wb_sunny),
+                  title: Text('Feel Good Vault'),
+                  onTap: con.accessVault,
+                ),
               ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.calendar_today_rounded),
-                title: Text('Calender'),
-                onTap: con.calender,
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.book),
+                  title: Text('Journal'),
+                  onTap: con.journalScreen,
+                ),
               ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.house),
-                title: Text('Social Settings'),
-                onTap: con.locationScreen,
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.calendar_today_rounded),
+                  title: Text('Calender'),
+                  onTap: con.calender,
+                ),
               ),
-            ),
-          ],
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.house),
+                  title: Text('Social Settings'),
+                  onTap: con.locationScreen,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -182,19 +193,16 @@ class _Controller {
     }
   }
 
-  void locationScreen() async{
-    try{
-
-      List<Location> locations = await FirebaseController.getLocations(_state.user.uid);
+  void locationScreen() async {
+    try {
+      List<Location> locations =
+          await FirebaseController.getLocations(_state.user.uid);
 
       await Navigator.pushNamed(_state.context, LocationScreen.routeName,
-                arguments: {'locations' : locations, 'user' : _state.user});
-    }catch(e){
+          arguments: {'locations': locations, 'user': _state.user});
+    } catch (e) {
       MyDialog.info(
-        title: 'Error',
-        context: _state.context,
-        content: e.toString()
-      );
+          title: 'Error', context: _state.context, content: e.toString());
     }
   }
 
@@ -220,6 +228,22 @@ class _Controller {
 
       await Navigator.pushNamed(_state.context, DiagnosisScreen.routeName,
           arguments: {'user': _state.user, 'diagnoses': diagnoses});
+    } catch (e) {
+      MyDialog.info(
+        context: _state.context,
+        content: e.toString(),
+        title: 'Error',
+      );
+    }
+  }
+
+  void mentalHealthScreen() async {
+    try {
+      List<MentalHealth> mentalHealth =
+          await FirebaseController.getMentalHealth(_state.user.uid);
+
+      await Navigator.pushNamed(_state.context, MentalHealthScreen.routeName,
+          arguments: {'user': _state.user, 'mentalHealth': mentalHealth});
     } catch (e) {
       MyDialog.info(
         context: _state.context,
@@ -271,12 +295,13 @@ class _Controller {
   void accessVault() async {
     try {
       Vault vault = await FirebaseController.getVault(_state.user.email);
-      if(vault == null){
+      if (vault == null) {
         vault = Vault(owner: _state.user.email);
         vault.docId = await FirebaseController.createVault(vault);
       }
 
-      await Navigator.pushNamed(_state.context, FeelGoodVault.routeName,arguments: {'user': _state.user.email, "vault": vault});
+      await Navigator.pushNamed(_state.context, FeelGoodVault.routeName,
+          arguments: {'user': _state.user.email, "vault": vault});
     } catch (e) {
       MyDialog.info(
         context: _state.context,
@@ -301,13 +326,13 @@ class _Controller {
     }
   }
 
-      // read all question's from firebase
-    void questionForm() async {
+  // read all question's from firebase
+  void questionForm() async {
     await Navigator.pushNamed(_state.context, QuestionHomeScreen.routeName,
-    arguments: {
-      'user': _state.user,
-      'personalCareList': _state.personalCare
-    });
+        arguments: {
+          'user': _state.user,
+          'personalCareList': _state.personalCare
+        });
     _state.render(() {});
   }
 
@@ -316,6 +341,7 @@ class _Controller {
   }
 
   void calender() {
-    Navigator.pushNamed(_state.context, CalenderScreen.routeName, arguments: {'user': _state.user});
+    Navigator.pushNamed(_state.context, CalenderScreen.routeName,
+        arguments: {'user': _state.user});
   }
 }

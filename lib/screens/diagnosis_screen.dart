@@ -7,8 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'views/mydialog.dart';
 
-class DiagnosisScreen extends StatefulWidget{
-
+class DiagnosisScreen extends StatefulWidget {
   static const routeName = './signIn/homeScreen/diagnosis/';
 
   @override
@@ -17,8 +16,7 @@ class DiagnosisScreen extends StatefulWidget{
   }
 }
 
-class _DiagnosisScreenState extends State<DiagnosisScreen>{
-
+class _DiagnosisScreenState extends State<DiagnosisScreen> {
   _Controller con;
   FirebaseUser user;
   List<Diagnosis> diagnoses;
@@ -56,12 +54,12 @@ class _DiagnosisScreenState extends State<DiagnosisScreen>{
         itemCount: diagnoses.length,
         itemBuilder: (BuildContext buildContext, int index) => InkWell(
           onLongPress: () {
-            render((){
+            render(() {
               selectedIndex = index;
             });
           },
-          onTap: (){
-            render((){
+          onTap: () {
+            render(() {
               selectedIndex = -1;
             });
           },
@@ -74,52 +72,84 @@ class _DiagnosisScreenState extends State<DiagnosisScreen>{
                 ListTile(
                   leading: Icon(Icons.note),
                   title: Text(diagnoses[index].diagnosedFor),
-                  subtitle: Text("By: " + diagnoses[index].diagnosedBy + " at " + diagnoses[index].diagnosedAt),
+                  subtitle: Text("By: " +
+                      diagnoses[index].diagnosedBy +
+                      " at " +
+                      diagnoses[index].diagnosedAt),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8),
                   child: ExpansionTile(
                     title: Text("More Info"),
                     children: [
-                          RichText(
-                            text: TextSpan(
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                              children: [
-                                TextSpan(text: "Diagnosed At: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                                TextSpan(text: "${diagnoses[index].diagnosedAt}"),
-                              ]
-                            ),
-                          ),
-                        RichText(
-                          text: TextSpan(
+                      RichText(
+                        text: TextSpan(
                             style: TextStyle(
                               color: Colors.black,
                             ),
                             children: [
-                              TextSpan(text: "Previous Treatments: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                              diagnoses[index].treatments[0].length == 0 ? 
-                                TextSpan(text: "None")
-                                :
-                                TextSpan(text: "${diagnoses[index].treatments.toString().replaceAll('[', '').replaceAll(']', '')}"),
-                            ]
-                          ),
-                        ),
-                        RichText(
-                          text: TextSpan(
+                              TextSpan(
+                                  text: "Diagnosed At: ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15)),
+                              TextSpan(text: "${diagnoses[index].diagnosedAt}"),
+                            ]),
+                      ),
+                      RichText(
+                        text: TextSpan(
                             style: TextStyle(
                               color: Colors.black,
                             ),
                             children: [
-                              TextSpan(text: "Comments: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                              diagnoses[index].additionalComments.trim().isEmpty ?
-                                TextSpan(text: "None")
-                              :
-                                TextSpan(text: "${diagnoses[index].additionalComments}")
-                            ]
-                          ),
-                        )
+                              TextSpan(
+                                  text: "Previous Treatments: ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15)),
+                              diagnoses[index].treatments[0].length == 0
+                                  ? TextSpan(text: "None")
+                                  : TextSpan(
+                                      text:
+                                          "${diagnoses[index].treatments.toString().replaceAll('[', '').replaceAll(']', '')}"),
+                            ]),
+                      ),
+                      RichText(
+                        text: TextSpan(
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                            children: [
+                              TextSpan(
+                                  text: "Coping Strategies: ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15)),
+                              diagnoses[index].treatments[0].length == 0
+                                  ? TextSpan(text: "None")
+                                  : TextSpan(
+                                      text:
+                                          "${diagnoses[index].copingStrategies.toString().replaceAll('[', '').replaceAll(']', '')}"),
+                            ]),
+                      ),
+                      RichText(
+                        text: TextSpan(
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                            children: [
+                              TextSpan(
+                                  text: "Comments: ",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15)),
+                              diagnoses[index].additionalComments.trim().isEmpty
+                                  ? TextSpan(text: "None")
+                                  : TextSpan(
+                                      text:
+                                          "${diagnoses[index].additionalComments}")
+                            ]),
+                      )
                     ],
                   ),
                 ),
@@ -136,17 +166,17 @@ class _DiagnosisScreenState extends State<DiagnosisScreen>{
   }
 }
 
-class _Controller{
+class _Controller {
   _DiagnosisScreenState _state;
   _Controller(this._state);
 
-  void addDiagnosis() async{
-    try{
+  void addDiagnosis() async {
+    try {
       await Navigator.pushNamed(_state.context, AddDiagnosis.routeName,
-            arguments: {'user': _state.user, 'diagnoses' : _state.diagnoses});
+          arguments: {'user': _state.user, 'diagnoses': _state.diagnoses});
 
-      _state.render((){});
-    }catch(e){
+      _state.render(() {});
+    } catch (e) {
       MyDialog.info(
         context: _state.context,
         content: e.message ?? e.toString(),
@@ -155,16 +185,20 @@ class _Controller{
     }
   }
 
-  void editDiagnosis() async{
-        await Navigator.pushNamed(_state.context, EditDiagnosis.routeName,
-          arguments: {'diagnosis' : _state.diagnoses[_state.selectedIndex], "user" : _state.user});
-    _state.render((){});
+  void editDiagnosis() async {
+    await Navigator.pushNamed(_state.context, EditDiagnosis.routeName,
+        arguments: {
+          'diagnosis': _state.diagnoses[_state.selectedIndex],
+          "user": _state.user
+        });
+    _state.render(() {});
   }
 
-  void deleteDiagnosis() async{    
-    await FirebaseController.deleteDiagnosis(_state.diagnoses[_state.selectedIndex].docId);
+  void deleteDiagnosis() async {
+    await FirebaseController.deleteDiagnosis(
+        _state.diagnoses[_state.selectedIndex].docId);
     _state.diagnoses.removeAt(_state.selectedIndex);
-    _state.render((){
+    _state.render(() {
       _state.selectedIndex = -1;
     });
     MyDialog.info(
@@ -173,5 +207,4 @@ class _Controller{
       title: "Success",
     );
   }
-
 }
