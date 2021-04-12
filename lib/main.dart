@@ -1,8 +1,12 @@
+import 'dart:io';
+
+import 'package:SDD_Project/AppTheme.dart';
 import 'package:SDD_Project/screens/addFamilyHistory_screen.dart';
 import 'package:SDD_Project/screens/addHotline_screen.dart';
 import 'package:SDD_Project/screens/addLocation_screen.dart';
 import 'package:SDD_Project/screens/addfeelgoodvault_screen.dart';
 import 'package:SDD_Project/screens/calender_screen.dart';
+import 'package:SDD_Project/screens/communitySupport_screen.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/editFamilyHistory_screen.dart';
 import 'package:SDD_Project/screens/editprescription_screen.dart';
@@ -13,6 +17,7 @@ import 'package:SDD_Project/screens/diagnosis_screen.dart';
 import 'package:SDD_Project/screens/journal_screen.dart';
 import 'package:SDD_Project/screens/location_screen.dart';
 import 'package:SDD_Project/screens/prescriptionDetails_screen.dart';
+import 'package:SDD_Project/screens/resources_screen.dart';
 import 'package:SDD_Project/screens/settings_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
 import 'package:SDD_Project/screens/signup_screen.dart';
@@ -20,15 +25,18 @@ import 'package:SDD_Project/screens/nativeContacts_screen.dart';
 import 'package:SDD_Project/screens/editDiagnosis_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
+import 'package:flutter/services.dart';
 import 'screens/aboutpage_screen.dart';
 import 'screens/adddiagnosis_screen.dart';
 import 'screens/addeventpage_screen.dart';
 import 'screens/editfeelgoodpage.dart';
+import 'screens/medicalInformation_screen.dart';
 import 'screens/prescription_screen.dart';
 import 'screens/addprescription_screen.dart';
 import 'screens/question_screen.dart';
 import 'screens/questionhome_screen.dart';
 import 'screens/reset_password_screen.dart';
+import 'screens/selfHelp_screen.dart';
 import 'screens/warningsigns_screen.dart';
 
 void main(){
@@ -44,6 +52,11 @@ class AppRoutes extends StatelessWidget{
 
     return MaterialApp(
 
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.lightBlue,
+        textTheme: AppTheme.textTheme,
+      ),
       initialRoute: SignInScreen.routeName,
 
       routes: {
@@ -78,6 +91,10 @@ class AppRoutes extends StatelessWidget{
         WarningSigns.routeName: (context) => WarningSigns(),
         ResetPasswordScreen.routeName: (context) => ResetPasswordScreen(),
         SettingsScreen.routeName: (context) => SettingsScreen(),
+        MedicalInformation.routeName: (context) => MedicalInformation(),
+        SelfHelp.routeName: (context) => SelfHelp(),
+        CommunitySupport.routeName: (context) => CommunitySupport(),
+        ResourceScreen.routeName: (context) => ResourceScreen(),
       }
     );
   }
