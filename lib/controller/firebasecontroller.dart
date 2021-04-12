@@ -3,6 +3,7 @@ import 'package:SDD_Project/model/diagnosis.dart';
 import 'package:SDD_Project/model/hotline.dart';
 import 'package:SDD_Project/model/location.dart';
 import 'package:SDD_Project/model/medicalHistory.dart';
+import 'package:SDD_Project/model/mental_health.dart';
 import 'package:SDD_Project/model/personalcare.dart';
 import 'package:SDD_Project/model/vault.dart';
 import 'package:SDD_Project/model/warningSign.dart';
@@ -773,4 +774,42 @@ class FirebaseController {
         .document(c.docID)
         .setData(c.serialize());
   }
+
+    static Future<String> addMentalHealth(MentalHealth mentalHealth) async {
+    DocumentReference ref = await Firestore.instance
+        .collection(MentalHealth.COLLECTION)
+        .add(mentalHealth.serialize());
+    return ref.documentID;
+  }
+
+  static Future<List<MentalHealth>> getMentalHealth(String uid) async {
+    QuerySnapshot querySnapshot = await Firestore.instance
+        .collection(MentalHealth.COLLECTION)
+        .where(MentalHealth.CREATED_BY, isEqualTo: uid)
+        .orderBy(MentalHealth.DESCRIPTION)
+        .getDocuments();
+
+    var results = <MentalHealth>[];
+    if (querySnapshot != null && querySnapshot.documents.length != 0) {
+      for (var doc in querySnapshot.documents) {
+        results.add(MentalHealth.deserialize(doc.data, doc.documentID));
+      }
+    }
+    return results;
+  }
+
+  static Future<void> deleteMentalHealth(String docId) async {
+    await Firestore.instance
+        .collection(MentalHealth.COLLECTION)
+        .document(docId)
+        .delete();
+  }
+
+  static Future<void> updateMentalHealth(MentalHealth mentalHealth) async {
+    await Firestore.instance
+        .collection(MentalHealth.COLLECTION)
+        .document(mentalHealth.docId)
+        .setData(mentalHealth.serialize());
+  }
+
 }

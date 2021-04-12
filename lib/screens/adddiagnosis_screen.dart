@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'views/mydialog.dart';
 
-class AddDiagnosis extends StatefulWidget{
-
+class AddDiagnosis extends StatefulWidget {
   static const routeName = './signIn/homeScreen/diagnosis/diagnosisHistory';
 
   @override
@@ -15,8 +14,7 @@ class AddDiagnosis extends StatefulWidget{
   }
 }
 
-class _AddDiagnosisState extends State<AddDiagnosis>{
-
+class _AddDiagnosisState extends State<AddDiagnosis> {
   _Controller con;
   FirebaseUser user;
   List<Diagnosis> diagnoses;
@@ -49,7 +47,9 @@ class _AddDiagnosisState extends State<AddDiagnosis>{
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Divider(height: 8.0,),
+              Divider(
+                height: 8.0,
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'Medical Diagnosis',
@@ -58,7 +58,9 @@ class _AddDiagnosisState extends State<AddDiagnosis>{
                 validator: con.diagnosisValidator,
                 onSaved: con.onSavedDiagnosis,
               ),
-              Divider(height: 8.0,),
+              Divider(
+                height: 8.0,
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'Diagnosed On YYYY-MM-DD',
@@ -68,7 +70,9 @@ class _AddDiagnosisState extends State<AddDiagnosis>{
                 validator: con.validatorDateBeforeToday,
                 onSaved: con.onSavedDignosedOn,
               ),
-              Divider(height: 8.0,),
+              Divider(
+                height: 8.0,
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'Diagnosed By',
@@ -77,7 +81,9 @@ class _AddDiagnosisState extends State<AddDiagnosis>{
                 validator: con.diagnosedByValidator,
                 onSaved: con.onSavedDiagnosedBy,
               ),
-              Divider(height: 8.0,),
+              Divider(
+                height: 8.0,
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'Diagnosed At',
@@ -86,7 +92,9 @@ class _AddDiagnosisState extends State<AddDiagnosis>{
                 validator: con.diagnosedAtValidator,
                 onSaved: con.onSavedDiagnosedAt,
               ),
-              Divider(height: 8.0,),
+              Divider(
+                height: 8.0,
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'List of Treatments (comma seperated list)',
@@ -94,7 +102,16 @@ class _AddDiagnosisState extends State<AddDiagnosis>{
                 autocorrect: false,
                 onSaved: con.onSavedTreatments,
               ),
-              Divider(height: 8.0,),
+              TextFormField(
+                decoration: InputDecoration(
+                  hintText: 'List of Coping Strategies (comma seperated list)',
+                ),
+                autocorrect: false,
+                onSaved: con.onSavedCopingStrategies,
+              ),
+              Divider(
+                height: 8.0,
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'Additional Comments',
@@ -109,10 +126,9 @@ class _AddDiagnosisState extends State<AddDiagnosis>{
       ),
     );
   }
-
 }
 
-class _Controller{
+class _Controller {
   _AddDiagnosisState _state;
   _Controller(this._state);
 
@@ -121,132 +137,118 @@ class _Controller{
   String diagnosedBy;
   String diagnosedAt;
   List<String> treatments;
+  List<String> copingStrategies;
   String additionalComments;
 
-void save() async {
+  void save() async {
+    if (!_state.formKey.currentState.validate()) {
+      return;
+    }
 
-      if (!_state.formKey.currentState.validate()) {
-        return;
-      }
+    _state.formKey.currentState.save();
 
-      _state.formKey.currentState.save();
+    try {
+      MyDialog.circularProgressStart(_state.context);
 
-      try{
-        
-        MyDialog.circularProgressStart(_state.context);
+      var d = new Diagnosis(
+        createdBy: _state.user.uid,
+        diagnosedFor: this.diagnosis,
+        diagnosedOn: this.diagnosedOn,
+        diagnosedBy: this.diagnosedBy,
+        diagnosedAt: this.diagnosedAt,
+        treatments: this.treatments,
+        copingStrategies: this.copingStrategies,
+        additionalComments: this.additionalComments,
+      );
 
-        var d = new Diagnosis(
-          createdBy: _state.user.uid,
-          diagnosedFor: this.diagnosis,
-          diagnosedOn: this.diagnosedOn,
-          diagnosedBy: this.diagnosedBy,
-          diagnosedAt: this.diagnosedAt,
-          treatments: this.treatments,
-          additionalComments: this.additionalComments,
-        );
+      d.docId = await FirebaseController.addDiagnosis(d);
+      _state.diagnoses.insert(0, d);
 
-        d.docId = await FirebaseController.addDiagnosis(d);
-        _state.diagnoses.insert(0, d);
-
-        MyDialog.circularProgressEnd(_state.context);
-        Navigator.pop(_state.context);
-
-      }catch(e){
-
-        MyDialog.circularProgressEnd(_state.context);
-        MyDialog.info(
-          context: _state.context,
-          title: 'Error uploading diagnosis.',
-          content: e.message ?? e.toString(),
-        );
-
-      }
-
+      MyDialog.circularProgressEnd(_state.context);
+      Navigator.pop(_state.context);
+    } catch (e) {
+      MyDialog.circularProgressEnd(_state.context);
+      MyDialog.info(
+        context: _state.context,
+        title: 'Error uploading diagnosis.',
+        content: e.message ?? e.toString(),
+      );
+    }
   }
 
   //Savers
-  void onSavedDiagnosis(String value){
+  void onSavedDiagnosis(String value) {
     this.diagnosis = value.trim();
   }
 
-  void onSavedDignosedOn(String value){
+  void onSavedDignosedOn(String value) {
     this.diagnosedOn = DateTime.parse(value.trim());
   }
 
-  void onSavedDiagnosedBy(String value){
+  void onSavedDiagnosedBy(String value) {
     this.diagnosedBy = value.trim();
   }
 
-  void onSavedDiagnosedAt(String value){
+  void onSavedDiagnosedAt(String value) {
     this.diagnosedAt = value.trim();
   }
 
-  void onSavedTreatments(String value){
+  void onSavedTreatments(String value) {
     this.treatments = value.split(',').map((e) => e.trim()).toList();
   }
 
-  void onSavedComments(String value){
+  void onSavedCopingStrategies(String value) {
+    this.copingStrategies = value.split(',').map((e) => e.trim()).toList();
+  }
+
+  void onSavedComments(String value) {
     this.additionalComments = value;
   }
 
   //Validators
   RegExp dateExp = new RegExp("[0-9]{4}[-][0-9]{2}[-][0-9]{2}");
 
-  String diagnosisValidator(String value){
-    if(value == null || value.trim().length < 4){
+  String diagnosisValidator(String value) {
+    if (value == null || value.trim().length < 4) {
       return 'Invalid diagnosis, must be at least 4 characters.';
     }
     return null;
   }
 
-  String validatorDate(String value){
-
-    if(value == null || value.trim().length != 10 || !dateExp.hasMatch(value.trim())){
-
+  String validatorDate(String value) {
+    if (value == null ||
+        value.trim().length != 10 ||
+        !dateExp.hasMatch(value.trim())) {
       return 'Invalid Date';
-
     }
 
     return null;
-
   }
 
-  String validatorDateBeforeToday(String value){
-
+  String validatorDateBeforeToday(String value) {
     String dateValidation = validatorDate(value);
-    if(dateValidation != null){
-
+    if (dateValidation != null) {
       return dateValidation;
-
-    }else if(DateTime.parse(value.trim()).isAfter(DateTime.now())){
-
+    } else if (DateTime.parse(value.trim()).isAfter(DateTime.now())) {
       return 'Date Is Not Before Today, or Today';
-
     }
 
     return null;
-
   }
 
-  String diagnosedByValidator(String value){
-    if(value == null || value.trim().length < 6){
-
+  String diagnosedByValidator(String value) {
+    if (value == null || value.trim().length < 6) {
       return 'Invalid Diagnoser';
-
     }
 
     return null;
   }
 
-  String diagnosedAtValidator(String value){
-
-    if(value == null || value.trim().length < 8){
-
+  String diagnosedAtValidator(String value) {
+    if (value == null || value.trim().length < 8) {
       return 'Invalid Hospital Address';
-
     }
 
     return null;
   }
-
 }

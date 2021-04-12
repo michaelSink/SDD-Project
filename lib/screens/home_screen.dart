@@ -1,6 +1,7 @@
 import 'package:SDD_Project/controller/firebasecontroller.dart';
 import 'package:SDD_Project/model/contacts.dart';
 import 'package:SDD_Project/model/journal.dart';
+import 'package:SDD_Project/model/mental_health.dart';
 import 'package:SDD_Project/model/personalcare.dart';
 import 'package:SDD_Project/model/location.dart';
 import 'package:SDD_Project/model/vault.dart';
@@ -27,6 +28,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/firebasecontroller.dart';
 import 'aboutpage_screen.dart';
 import 'journal_screen.dart';
+import 'mental_health_screen.dart';
 import 'medicalInformation_screen.dart';
 import 'resources_screen.dart';
 import 'selfHelp_screen.dart';
@@ -72,31 +74,28 @@ class _HomeState extends State<HomeScreen> {
             padding: EdgeInsets.zero,
             children: [
               Container(
-                child: UserAccountsDrawerHeader(
-                  accountName: Text(user.email),
-                  accountEmail: Text(user.displayName ?? 'N/A',),
-                  currentAccountPicture: CircleAvatar(
-                    child: ClipOval(
-                      child: user.photoUrl != null 
+                  child: UserAccountsDrawerHeader(
+                accountName: Text(user.email),
+                accountEmail: Text(
+                  user.displayName ?? 'N/A',
+                ),
+                currentAccountPicture: CircleAvatar(
+                  child: ClipOval(
+                    child: user.photoUrl != null
                         ? MyImageView.network(
-                                imageUrl: user.photoUrl, context: context)
-                        :Image.asset('static/images/default-user.png')
-                      ,
-                    ),
-                    backgroundColor: Theme.of(context).primaryColorDark,
-                    foregroundColor: Theme.of(context).canvasColor,
+                            imageUrl: user.photoUrl, context: context)
+                        : Image.asset('static/images/default-user.png'),
                   ),
-                  decoration:BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.blue,
-                        Colors.blue[200],
-                      ],
-                      tileMode: TileMode.repeated
-                    ),
-                  ),
-                )
-              ),
+                  backgroundColor: Theme.of(context).primaryColorDark,
+                  foregroundColor: Theme.of(context).canvasColor,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [
+                    Colors.blue,
+                    Colors.blue[200],
+                  ], tileMode: TileMode.repeated),
+                ),
+              )),
               ListTile(
                 leading: Icon(Icons.developer_board),
                 title: Text('About page'),
@@ -107,7 +106,9 @@ class _HomeState extends State<HomeScreen> {
                 title: Text('Question Form'),
                 onTap: con.questionForm,
               ),
-              Divider(color: Colors.black,),
+              Divider(
+                color: Colors.black,
+              ),
               ListTile(
                 leading: Icon(Icons.settings),
                 title: Text('Settings'),
@@ -133,8 +134,13 @@ class _HomeState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(Icons.local_hospital, size: 35,),
-                    SizedBox(height: 10,),
+                    Icon(
+                      Icons.local_hospital,
+                      size: 35,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Text(
                       "Medical Information",
                       style: TextStyle(
@@ -153,8 +159,13 @@ class _HomeState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(Icons.spa_outlined, size: 35,),
-                    SizedBox(height: 10,),
+                    Icon(
+                      Icons.spa_outlined,
+                      size: 35,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Text(
                       "Self Help",
                       style: TextStyle(
@@ -173,8 +184,13 @@ class _HomeState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(Icons.people_outline, size: 35,),
-                    SizedBox(height: 10,),
+                    Icon(
+                      Icons.people_outline,
+                      size: 35,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Text(
                       "Community Support",
                       style: TextStyle(
@@ -193,8 +209,13 @@ class _HomeState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(Icons.book, size: 35,),
-                    SizedBox(height: 10,),
+                    Icon(
+                      Icons.book,
+                      size: 35,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Text(
                       "Resources",
                       style: TextStyle(
@@ -231,24 +252,24 @@ class _Controller {
   _HomeState _state;
   _Controller(this._state);
 
-  void medicalInformationScreen() async{
+  void medicalInformationScreen() async {
     await Navigator.pushNamed(_state.context, MedicalInformation.routeName,
-            arguments: {'user' : _state.user});
+        arguments: {'user': _state.user});
   }
 
-  void selfHelp() async{
+  void selfHelp() async {
     await Navigator.pushNamed(_state.context, SelfHelp.routeName,
-            arguments: {'user' : _state.user});
+        arguments: {'user': _state.user});
   }
 
-  void communityScreen() async{
+  void communityScreen() async {
     await Navigator.pushNamed(_state.context, CommunitySupport.routeName,
-            arguments: {'user' : _state.user});
+        arguments: {'user': _state.user});
   }
 
-  void resourceScreen() async{
+  void resourceScreen() async {
     await Navigator.pushNamed(_state.context, ResourceScreen.routeName,
-            arguments: {'user' : _state.user});
+        arguments: {'user': _state.user});
   }
 
   void prescriptionScreen() async {
@@ -268,19 +289,16 @@ class _Controller {
     }
   }
 
-  void locationScreen() async{
-    try{
-
-      List<Location> locations = await FirebaseController.getLocations(_state.user.uid);
+  void locationScreen() async {
+    try {
+      List<Location> locations =
+          await FirebaseController.getLocations(_state.user.uid);
 
       await Navigator.pushNamed(_state.context, LocationScreen.routeName,
-                arguments: {'locations' : locations, 'user' : _state.user});
-    }catch(e){
+          arguments: {'locations': locations, 'user': _state.user});
+    } catch (e) {
       MyDialog.info(
-        title: 'Error',
-        context: _state.context,
-        content: e.toString()
-      );
+          title: 'Error', context: _state.context, content: e.toString());
     }
   }
 
@@ -315,18 +333,31 @@ class _Controller {
     }
   }
 
-  void warningScreen() async{
-    try{
-
-      List<WarningSign> signs = await FirebaseController.getWarningSigns(_state.user.uid);
+  void warningScreen() async {
+    try {
+      List<WarningSign> signs =
+          await FirebaseController.getWarningSigns(_state.user.uid);
 
       await Navigator.pushNamed(_state.context, WarningSigns.routeName,
-        arguments: {'user' : _state.user, 'signs' : signs});
-    }catch(e){
+          arguments: {'user': _state.user, 'signs': signs});
+    } catch (e) {
       MyDialog.info(
-        title: 'Error',
+          title: 'Error', context: _state.context, content: e.toString());
+    }
+  }
+
+  void mentalHealthScreen() async {
+    try {
+      List<MentalHealth> mentalHealth =
+          await FirebaseController.getMentalHealth(_state.user.uid);
+
+      await Navigator.pushNamed(_state.context, MentalHealthScreen.routeName,
+          arguments: {'user': _state.user, 'mentalHealth': mentalHealth});
+    } catch (e) {
+      MyDialog.info(
         context: _state.context,
-        content: e.toString()
+        content: e.toString(),
+        title: 'Error',
       );
     }
   }
@@ -375,12 +406,13 @@ class _Controller {
   void accessVault() async {
     try {
       Vault vault = await FirebaseController.getVault(_state.user.email);
-      if(vault == null){
+      if (vault == null) {
         vault = Vault(owner: _state.user.email);
         vault.docId = await FirebaseController.createVault(vault);
       }
 
-      await Navigator.pushNamed(_state.context, FeelGoodVault.routeName,arguments: {'user': _state.user.email, "vault": vault});
+      await Navigator.pushNamed(_state.context, FeelGoodVault.routeName,
+          arguments: {'user': _state.user.email, "vault": vault});
     } catch (e) {
       MyDialog.info(
         context: _state.context,
@@ -405,19 +437,19 @@ class _Controller {
     }
   }
 
-  void settings() async{
-    await Navigator.pushNamed(_state.context, SettingsScreen.routeName,
-              arguments: {'user' : _state.user});
+  // read all question's from firebase
+  void questionForm() async {
+    await Navigator.pushNamed(_state.context, QuestionHomeScreen.routeName,
+        arguments: {
+          'user': _state.user,
+          'personalCareList': _state.personalCare
+        });
+    _state.render(() {});
   }
 
-      // read all question's from firebase
-    void questionForm() async {
-    await Navigator.pushNamed(_state.context, QuestionHomeScreen.routeName,
-    arguments: {
-      'user': _state.user,
-      'personalCareList': _state.personalCare
-    });
-    _state.render(() {});
+  void settings() async {
+    await Navigator.pushNamed(_state.context, SettingsScreen.routeName,
+        arguments: {'user': _state.user});
   }
 
   void about() {
@@ -425,6 +457,7 @@ class _Controller {
   }
 
   void calender() {
-    Navigator.pushNamed(_state.context, CalenderScreen.routeName, arguments: {'user': _state.user});
+    Navigator.pushNamed(_state.context, CalenderScreen.routeName,
+        arguments: {'user': _state.user});
   }
 }
