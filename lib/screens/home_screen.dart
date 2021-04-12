@@ -5,7 +5,9 @@ import 'package:SDD_Project/model/mental_health.dart';
 import 'package:SDD_Project/model/personalcare.dart';
 import 'package:SDD_Project/model/location.dart';
 import 'package:SDD_Project/model/vault.dart';
+import 'package:SDD_Project/model/warningSign.dart';
 import 'package:SDD_Project/screens/calender_screen.dart';
+import 'package:SDD_Project/screens/communitySupport_screen.dart';
 import 'package:SDD_Project/screens/contacts_screen.dart';
 import 'package:SDD_Project/screens/feelgoodvault_screen.dart';
 import 'package:SDD_Project/model/diagnosis.dart';
@@ -17,14 +19,20 @@ import 'package:SDD_Project/screens/location_screen.dart';
 import 'package:SDD_Project/screens/prescription_screen.dart';
 import 'package:SDD_Project/screens/questionhome_screen.dart';
 import 'package:SDD_Project/screens/signin_screen.dart';
+import 'package:SDD_Project/screens/warningsigns_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:SDD_Project/screens/hotline_screen.dart';
 import 'package:SDD_Project/screens/views/myimageview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/firebasecontroller.dart';
 import 'aboutpage_screen.dart';
 import 'journal_screen.dart';
 import 'mental_health_screen.dart';
+import 'medicalInformation_screen.dart';
+import 'resources_screen.dart';
+import 'selfHelp_screen.dart';
+import 'settings_screen.dart';
 import 'signin_screen.dart';
 import 'views/mydialog.dart';
 
@@ -63,21 +71,31 @@ class _HomeState extends State<HomeScreen> {
         ),
         drawer: Drawer(
           child: ListView(
+            padding: EdgeInsets.zero,
             children: [
-              UserAccountsDrawerHeader(
-                currentAccountPicture: ClipOval(
+              Container(
+                  child: UserAccountsDrawerHeader(
+                accountName: Text(user.email),
+                accountEmail: Text(
+                  user.displayName ?? 'N/A',
+                ),
+                currentAccountPicture: CircleAvatar(
+                  child: ClipOval(
                     child: user.photoUrl != null
                         ? MyImageView.network(
                             imageUrl: user.photoUrl, context: context)
-                        : Image.asset('static/images/default-user.png')),
-                accountEmail: Text(user.email),
-                accountName: Text(user.displayName ?? 'N/A'),
-              ),
-              ListTile(
-                leading: Icon(Icons.exit_to_app),
-                title: Text('Sign Out'),
-                onTap: con.signOut,
-              ),
+                        : Image.asset('static/images/default-user.png'),
+                  ),
+                  backgroundColor: Theme.of(context).primaryColorDark,
+                  foregroundColor: Theme.of(context).canvasColor,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [
+                    Colors.blue,
+                    Colors.blue[200],
+                  ], tileMode: TileMode.repeated),
+                ),
+              )),
               ListTile(
                 leading: Icon(Icons.developer_board),
                 title: Text('About page'),
@@ -88,84 +106,142 @@ class _HomeState extends State<HomeScreen> {
                 title: Text('Question Form'),
                 onTap: con.questionForm,
               ),
+              Divider(
+                color: Colors.black,
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('Settings'),
+                onTap: con.settings,
+              ),
+              ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text('Sign Out'),
+                onTap: con.signOut,
+              ),
             ],
           ),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.person),
-                  title: Text('Contacts'),
-                  onTap: con.accessContacts,
+        body: GridView.count(
+          crossAxisCount: 2,
+          padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
+          children: [
+            InkWell(
+              onTap: con.medicalInformationScreen,
+              child: Card(
+                elevation: 6,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.local_hospital,
+                      size: 35,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Medical Information",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.local_hospital),
-                  title: Text('Prescriptions'),
-                  onTap: con.prescriptionScreen,
+            ),
+            InkWell(
+              onTap: con.selfHelp,
+              child: Card(
+                elevation: 6,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.spa_outlined,
+                      size: 35,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Self Help",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.phone),
-                  title: Text('Hotlines'),
-                  onTap: con.hotlineScreen,
+            ),
+            InkWell(
+              onTap: con.communityScreen,
+              child: Card(
+                elevation: 6,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.people_outline,
+                      size: 35,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Community Support",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.history),
-                  title: Text('Diagnoses'),
-                  onTap: con.diagnosisScreen,
+            ),
+            InkWell(
+              onTap: con.resourceScreen,
+              child: Card(
+                elevation: 6,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.book,
+                      size: 35,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "Resources",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.history),
-                  title: Text('Mental Health'),
-                  onTap: con.mentalHealthScreen,
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.people),
-                  title: Text('Family History'),
-                  onTap: con.familyScreen,
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.wb_sunny),
-                  title: Text('Feel Good Vault'),
-                  onTap: con.accessVault,
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.book),
-                  title: Text('Journal'),
-                  onTap: con.journalScreen,
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.calendar_today_rounded),
-                  title: Text('Calender'),
-                  onTap: con.calender,
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.house),
-                  title: Text('Social Settings'),
-                  onTap: con.locationScreen,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+              backgroundColor: Colors.grey,
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
+              backgroundColor: Colors.grey,
+            ),
+          ],
+          onTap: (value) => value == 1 ? con.settings() : null,
         ),
       ),
     );
@@ -175,6 +251,26 @@ class _HomeState extends State<HomeScreen> {
 class _Controller {
   _HomeState _state;
   _Controller(this._state);
+
+  void medicalInformationScreen() async {
+    await Navigator.pushNamed(_state.context, MedicalInformation.routeName,
+        arguments: {'user': _state.user});
+  }
+
+  void selfHelp() async {
+    await Navigator.pushNamed(_state.context, SelfHelp.routeName,
+        arguments: {'user': _state.user});
+  }
+
+  void communityScreen() async {
+    await Navigator.pushNamed(_state.context, CommunitySupport.routeName,
+        arguments: {'user': _state.user});
+  }
+
+  void resourceScreen() async {
+    await Navigator.pushNamed(_state.context, ResourceScreen.routeName,
+        arguments: {'user': _state.user});
+  }
 
   void prescriptionScreen() async {
     try {
@@ -237,6 +333,19 @@ class _Controller {
     }
   }
 
+  void warningScreen() async {
+    try {
+      List<WarningSign> signs =
+          await FirebaseController.getWarningSigns(_state.user.uid);
+
+      await Navigator.pushNamed(_state.context, WarningSigns.routeName,
+          arguments: {'user': _state.user, 'signs': signs});
+    } catch (e) {
+      MyDialog.info(
+          title: 'Error', context: _state.context, content: e.toString());
+    }
+  }
+
   void mentalHealthScreen() async {
     try {
       List<MentalHealth> mentalHealth =
@@ -251,6 +360,7 @@ class _Controller {
         title: 'Error',
       );
     }
+    ;
   }
 
   void hotlineScreen() async {
@@ -270,6 +380,8 @@ class _Controller {
 
   void signOut() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setBool('remember', false);
       await FirebaseController.signOut();
     } catch (e) {
       print('signOut exception: ${e.message}');
@@ -334,6 +446,11 @@ class _Controller {
           'personalCareList': _state.personalCare
         });
     _state.render(() {});
+  }
+
+  void settings() async {
+    await Navigator.pushNamed(_state.context, SettingsScreen.routeName,
+        arguments: {'user': _state.user});
   }
 
   void about() {

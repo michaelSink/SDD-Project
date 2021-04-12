@@ -6,6 +6,7 @@ import 'package:SDD_Project/model/medicalHistory.dart';
 import 'package:SDD_Project/model/mental_health.dart';
 import 'package:SDD_Project/model/personalcare.dart';
 import 'package:SDD_Project/model/vault.dart';
+import 'package:SDD_Project/model/warningSign.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:SDD_Project/model/contacts.dart';
@@ -17,11 +18,11 @@ import 'package:google_ml_kit/google_ml_kit.dart';
 
 class FirebaseController {
   static Future signIn(String email, String password) async {
+
     AuthResult auth = await FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password);
     return auth.user;
   }
-
 
   static Future<List<String>> getImageText(File image) async{
 
@@ -54,6 +55,78 @@ class FirebaseController {
     var download = await task.onComplete;
     String url = await download.ref.getDownloadURL();
     return {'url': url, 'path': filePath};
+  }
+
+  static Future<void> updateEmail({
+    @required FirebaseUser user,
+    @required String email,
+  }) async{
+    await user.updateEmail(email);
+  }
+
+  static Future<void> updateProfilePicture({
+    @required File image,
+    @required FirebaseUser user,
+  })async {
+    UserUpdateInfo updateInfo = UserUpdateInfo();
+
+    String filePath = 'userPhotos/' + user.uid + '/' + user.uid;
+    StorageUploadTask uploadTask =
+        FirebaseStorage.instance.ref().child(filePath).putFile(image);
+
+    var download = await uploadTask.onComplete;
+    String url = await download.ref.getDownloadURL();
+
+    updateInfo.photoUrl = url;
+
+    await user.updateProfile(updateInfo);
+  }
+
+  static Future<void> updateDisplayName({
+    @required String displayName,
+    @required FirebaseUser user,
+  }) async {
+      UserUpdateInfo updateInfo = UserUpdateInfo();
+      updateInfo.displayName = displayName;
+
+      await user.updateProfile(updateInfo);
+  }
+
+  static Future<String> addWarningSign(WarningSign sign) async{
+    DocumentReference ref = await Firestore.instance
+                              .collection(WarningSign.COLLECTION)
+                              .add(sign.serialize());
+
+    return ref.documentID;
+  }
+
+  static Future<void> updateWarningSign(WarningSign sign) async{
+    await Firestore.instance
+      .collection(WarningSign.COLLECTION)
+      .document(sign.docId)
+      .setData(sign.serialize());
+  }
+
+  static Future<void> deleteWarningSign(String docId) async{
+    await Firestore.instance
+      .collection(WarningSign.COLLECTION)
+      .document(docId)
+      .delete();
+  }
+
+  static Future<List<WarningSign>> getWarningSigns(String uid) async{
+     QuerySnapshot querySnapshot = await Firestore.instance
+        .collection(WarningSign.COLLECTION)
+        .where(WarningSign.CREATED_BY, isEqualTo: uid)
+        .orderBy(WarningSign.RANK)
+        .getDocuments();
+    var results = <WarningSign>[];
+    if (querySnapshot != null && querySnapshot.documents.length != 0) {
+      for (var doc in querySnapshot.documents) {
+        results.add(WarningSign.deserialize(doc.data, doc.documentID));
+      }
+    }
+    return results;
   }
 
   static Future<String> addLocation(Location location) async {
