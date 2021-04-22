@@ -294,6 +294,7 @@ class _ContactScreen extends State<ContactScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
+          contactToEdit = null;
           //open up a popup form
           popupForm("add");
         },
